@@ -1,6 +1,6 @@
-package org.pr1.ag;
+package G12P2.ag;
 
-import org.pr1.cromosomas.Cromosoma;
+import G12P2.cromosomas.Cromosoma;
 
 /**
  * contiene todos los resultados de una ejecución del algoritmo genético.

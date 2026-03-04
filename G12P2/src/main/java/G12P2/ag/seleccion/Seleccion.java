@@ -1,6 +1,6 @@
-package org.pr1.ag.seleccion;
+package G12P2.ag.seleccion;
 
-import org.pr1.cromosomas.Cromosoma;
+import G12P2.cromosomas.Cromosoma;
 
 public interface Seleccion {
     Cromosoma[] seleccionar(Cromosoma[] poblacion, int[] fitness);

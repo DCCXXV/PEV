@@ -1,4 +1,4 @@
-package org.pr1.cromosomas;
+package G12P2.cromosomas;
 
 public interface Cromosoma {
     int evaluar();

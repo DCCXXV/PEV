@@ -1,8 +1,8 @@
-package org.pr1;
+package G12P2;
 
-import org.pr1.cromosomas.Cromosoma;
-import org.pr1.cromosomas.CromosomaBinario;
-import org.pr1.cromosomas.CromosomaReal;
+import G12P2.cromosomas.Cromosoma;
+import G12P2.cromosomas.CromosomaBinario;
+import G12P2.cromosomas.CromosomaReal;
 
 import java.util.function.Supplier;
 

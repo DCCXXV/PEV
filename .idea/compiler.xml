@@ -6,7 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="G12P1" />
+        <module name="G12P1 (1) (org.G12P1)" />
+        <module name="G12P2" />
       </profile>
     </annotationProcessing>
   </component>

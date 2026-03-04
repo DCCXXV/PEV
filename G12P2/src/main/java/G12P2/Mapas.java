@@ -1,4 +1,4 @@
-package org.pr1;
+package G12P2;
 
 public class Mapas {
     public static int[][] getMapa(String nombre) {

@@ -1,7 +1,7 @@
-package org.pr1.ag.seleccion;
+package G12P2.ag.seleccion;
 
 import java.util.Arrays;
-import org.pr1.cromosomas.Cromosoma;
+import G12P2.cromosomas.Cromosoma;
 
 public class Truncamiento implements Seleccion {
 

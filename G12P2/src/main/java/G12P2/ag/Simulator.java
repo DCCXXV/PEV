@@ -1,13 +1,13 @@
-package org.pr1.ag;
+package G12P2.ag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Supplier;
-import org.pr1.ag.cruce.Cruce;
-import org.pr1.ag.mutacion.Mutacion;
-import org.pr1.ag.seleccion.Seleccion;
-import org.pr1.cromosomas.Cromosoma;
+import G12P2.ag.cruce.Cruce;
+import G12P2.ag.mutacion.Mutacion;
+import G12P2.ag.seleccion.Seleccion;
+import G12P2.cromosomas.Cromosoma;
 
 public class Simulator {
 

@@ -1,10 +1,10 @@
-package org.pr1.cromosomas;
+package G12P2.cromosomas;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import org.pr1.Scene;
+import G12P2.Scene;
 
 public class CromosomaDrones implements Cromosoma {
 
