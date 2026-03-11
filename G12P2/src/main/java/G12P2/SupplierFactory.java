@@ -24,17 +24,17 @@ public class SupplierFactory {
     private static Supplier<Cromosoma> mapasSinPonderar(String nombre) {
         switch (nombre) {
             case "Museo": {
-                Scene scene = new Scene(Mapas.getMapa(nombre), false);
+                Scene scene = new Scene(Mapas.getMapa(nombre));
                 int[][] camaras = {};
                 return () -> new CromosomaDrones(4, 3, camaras, scene);
             }
             case "Pasillo": {
-                Scene scene = new Scene(Mapas.getMapa(nombre), false);
+                Scene scene = new Scene(Mapas.getMapa(nombre));
                 int[][] camaras = {};
                 return () -> new CromosomaDrones(7, 5, camaras, scene);
             }
             case "SuperMercado": {
-                Scene scene = new Scene(Mapas.getMapa(nombre), false);
+                Scene scene = new Scene(Mapas.getMapa(nombre));
                 int[][] camaras = {};
                 return () -> new CromosomaDrones(8, 7, camaras, scene);
             }
@@ -46,24 +46,21 @@ public class SupplierFactory {
         switch (nombre) {
             case "Museo": {
                 Scene scene = new Scene(
-                    Mapas.getMapa(nombre + "Ponderado"),
-                    true
+                    Mapas.getMapa(nombre + "Ponderado")
                 );
                 int[][] camaras = {};
                 return () -> new CromosomaDrones(4, 3, camaras, scene);
             }
             case "Pasillo": {
                 Scene scene = new Scene(
-                    Mapas.getMapa(nombre + "Ponderado"),
-                    true
+                    Mapas.getMapa(nombre + "Ponderado")
                 );
                 int[][] camaras = {};
                 return () -> new CromosomaDrones(7, 5, camaras, scene);
             }
             case "SuperMercado": {
                 Scene scene = new Scene(
-                    Mapas.getMapa(nombre + "Ponderado"),
-                    true
+                    Mapas.getMapa(nombre + "Ponderado")
                 );
                 int[][] camaras = {};
                 return () -> new CromosomaDrones(8, 7, camaras, scene);

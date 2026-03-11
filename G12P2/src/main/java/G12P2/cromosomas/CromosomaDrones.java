@@ -14,8 +14,9 @@ public class CromosomaDrones implements Cromosoma {
     );
 
     private int[] genes;
+
+    //numero de drones y numero de camaras
     private int D, C;
-    private int[][] posCamaras;
 
     private Scene scene;
 
@@ -24,20 +25,19 @@ public class CromosomaDrones implements Cromosoma {
     public CromosomaDrones(int D, int C, int[][] posCamaras, Scene scene) {
         this.D = D;
         this.C = C;
-        this.posCamaras = posCamaras;
         this.scene = scene;
         this.genes = generarGenesAleatorios();
     }
 
+    //copia
     public CromosomaDrones(CromosomaDrones other) {
         this.genes = other.getGenes().clone();
         this.D = other.getD();
         this.C = other.getC();
-        this.posCamaras = other.getPosCamaras();
         this.scene = other.getScene();
     }
 
-    // tamaño = C + (D-1).
+    // tamanio = C + (D-1).
     private int[] generarGenesAleatorios() {
         List<Integer> valores = new ArrayList<>(C + D - 1);
         // camaras
@@ -64,10 +64,6 @@ public class CromosomaDrones implements Cromosoma {
 
     public int getD() {
         return D;
-    }
-
-    public int[][] getPosCamaras() {
-        return posCamaras;
     }
 
     public Scene getScene() {

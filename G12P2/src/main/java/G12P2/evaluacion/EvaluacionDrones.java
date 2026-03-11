@@ -10,6 +10,7 @@ public class EvaluacionDrones {
     record Nodo(int X, int Y, int coste, int heuristica){}
     record Pos(int X, int Y){};
     private static int mapa[][];
+
     private static Pos fin;
 
     public static int evaluar(Scene scene, CromosomaDrones cromosoma) {
