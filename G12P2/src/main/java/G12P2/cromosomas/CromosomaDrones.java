@@ -1,10 +1,10 @@
 package G12P2.cromosomas;
 
+import G12P2.Scene;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import G12P2.Scene;
 
 public class CromosomaDrones implements Cromosoma {
 
@@ -22,9 +22,9 @@ public class CromosomaDrones implements Cromosoma {
 
     private static final Random rng = new Random();
 
-    public CromosomaDrones(int D, int C, int[][] posCamaras, Scene scene) {
+    public CromosomaDrones(int D, Scene scene) {
         this.D = D;
-        this.C = C;
+        this.C = scene.getNumCamaras();
         this.scene = scene;
         this.genes = generarGenesAleatorios();
     }
@@ -37,7 +37,7 @@ public class CromosomaDrones implements Cromosoma {
         this.scene = other.getScene();
     }
 
-    // tamanio = C + (D-1).
+    // tamaño = C + (D-1).
     private int[] generarGenesAleatorios() {
         List<Integer> valores = new ArrayList<>(C + D - 1);
         // camaras
