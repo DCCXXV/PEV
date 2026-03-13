@@ -34,7 +34,7 @@ public class CrucePMX implements Cruce {
         Set<Integer> segGenes1 = new HashSet<>();
         Set<Integer> segGenes2 = new HashSet<>();
         for (int i = puntoCorte1; i < puntoCorte2; i++) {
-            // gruardar elementos de los segmentos centrales
+            // guardar elementos de los segmentos centrales
             segGenes1.add(genes1[i]);
             segGenes2.add(genes2[i]);
             // parejas
