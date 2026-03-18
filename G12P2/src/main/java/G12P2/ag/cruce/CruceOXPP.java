@@ -28,8 +28,8 @@ public class CruceOXPP implements Cruce {
     }
 
     private int[] crearHijo(
-        int[] p1,
-        int[] p2,
+        int[] p1, // valores
+        int[] p2, // base
         boolean[] seleccionadas,
         int n
     ) {
