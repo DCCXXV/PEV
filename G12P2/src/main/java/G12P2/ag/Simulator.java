@@ -1,13 +1,14 @@
 package G12P2.ag;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.function.Supplier;
 import G12P2.ag.cruce.Cruce;
 import G12P2.ag.mutacion.Mutacion;
 import G12P2.ag.seleccion.Seleccion;
 import G12P2.cromosomas.Cromosoma;
+import G12P2.cromosomas.CromosomaDrones;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.function.Supplier;
 
 public class Simulator {
 
@@ -30,6 +31,9 @@ public class Simulator {
     private Cromosoma[] elite;
     private int[] fitnessElite;
 
+    // TODO: interfaz !!
+    private boolean memetico;
+
     // resultados acumulados durante la ejec
     private SimulatorResult resultado;
 
@@ -42,8 +46,10 @@ public class Simulator {
         Seleccion seleccion,
         Cruce cruce,
         Mutacion mutacion,
-        Supplier<Cromosoma> factoriaCromosomas
+        Supplier<Cromosoma> factoriaCromosomas,
+        boolean memetico
     ) {
+        this.memetico = memetico;
         this.maxGeneraciones = maxGeneraciones;
         this.tamPoblacion = tamPoblacion;
         this.probCruce = probCruce;
@@ -80,6 +86,7 @@ public class Simulator {
             poblacion = seleccion.seleccionar(poblacion, fitness);
             cruce(probCruce);
             mutacion(probMutacion);
+            if (memetico) aplicarBusquedaLocal();
             introducirElite();
             evaluarPoblacion();
 
@@ -172,6 +179,60 @@ public class Simulator {
         for (int i = 0; i < tamPoblacion; i++) {
             mutacion.mutar(poblacion[i], probMutacion);
         }
+    }
+
+    /**
+     * aplica búsqueda local 2-Opt al 10% de la población
+     *
+     * por cada individuo seleccionado, prueba todas las inversiones posibles
+     * de subrutas y como nos quedamos con la mejor se "desenredan" las rutas
+     */
+    private void aplicarBusquedaLocal() {
+        for (int k = 0; k < tamPoblacion; k++) {
+            if (Math.random() >= 0.10) continue; // 10%
+            if (!(poblacion[k] instanceof CromosomaDrones)) continue;
+
+            CromosomaDrones ind = (CromosomaDrones) poblacion[k];
+            int fitActual = fitness[k];
+            int[] genesActuales = ind.getGenes();
+
+            // probar todas las inversiones posibles de tramos (i, j)
+            for (int i = 0; i < genesActuales.length - 1; i++) {
+                for (int j = i + 2; j < genesActuales.length; j++) {
+                    // invertir el subtramo entre i+1 y j
+                    int[] nuevaRuta = invertirSubRuta(genesActuales, i + 1, j);
+
+                    // crear un clon con esa nueva ruta para evaluarla
+                    CromosomaDrones clon = (CromosomaDrones) ind.copia();
+                    clon.setGenes(nuevaRuta);
+
+                    // si "desenredar" la ruta mejora el fitness, nos lo quedamos
+                    int nuevaFit = clon.evaluar();
+                    if (nuevaFit > fitActual) {
+                        poblacion[k] = clon;
+                        fitness[k] = nuevaFit;
+                        ind = clon;
+                        genesActuales = nuevaRuta;
+                        fitActual = nuevaFit;
+                    }
+                }
+            }
+        }
+    }
+
+    // devuelve una copia de genes con el tramo [desde, hasta] invertido.
+    private int[] invertirSubRuta(int[] genes, int desde, int hasta) {
+        int[] nueva = genes.clone();
+        int lo = desde,
+            hi = hasta;
+        while (lo < hi) {
+            int tmp = nueva[lo];
+            nueva[lo] = nueva[hi];
+            nueva[hi] = tmp;
+            lo++;
+            hi--;
+        }
+        return nueva;
     }
 
     private void introducirElite() {
