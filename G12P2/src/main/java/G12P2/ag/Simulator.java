@@ -225,7 +225,7 @@ public class Simulator {
                     clon.setGenes(nuevaRuta);
 
                     // si "desenredar" la ruta mejora el fitness, nos lo quedamos
-                    int nuevaFit = clon.evaluar();
+                    double nuevaFit = clon.evaluar().getFitness();
                     if (nuevaFit > fitActual) {
                         poblacion[k] = clon;
                         fitness[k] = nuevaFit;

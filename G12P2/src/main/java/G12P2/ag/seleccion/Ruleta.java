@@ -6,19 +6,19 @@ import G12P2.cromosomas.Cromosoma;
 public class Ruleta implements Seleccion {
 
     @Override
-    public Cromosoma[] seleccionar(Cromosoma[] poblacion, int[] fitness) {
-        int min = Integer.MAX_VALUE;
-        for (int fit : fitness) {
+    public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
+        double min = Integer.MAX_VALUE;
+        for (double fit : fitness) {
             if (fit < min) {
                 min = fit;
             }
         }
-        int minAbs = Math.abs(min);
+        double minAbs = Math.abs(min);
 
         //ajusta los fitness para que los negativos sean 0
         //y aprovecha y saca el acumulado
         int total = 0;
-        int fitnessAjustado[] = new int[fitness.length];
+        double fitnessAjustado[] = new double[fitness.length];
         for (int i = 0; i < fitness.length; i++) {
             if (fitness[i] < 0) fitnessAjustado[i] = fitness[i] + minAbs;
             else fitnessAjustado[i] = fitness[i];

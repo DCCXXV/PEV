@@ -6,7 +6,7 @@ import G12P2.cromosomas.Cromosoma;
 public class Torneo implements Seleccion {
 
     @Override
-    public Cromosoma[] seleccionar(Cromosoma[] poblacion, int[] fitness) {
+    public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
         Random rand = new Random();
 
         //nueva poblacion
@@ -19,7 +19,7 @@ public class Torneo implements Seleccion {
             );
 
             //se miran 3 y se queda con el mejor
-            int max = Integer.MIN_VALUE;
+            double max = Integer.MIN_VALUE;
             int selected = -1;
             for (int num : numeros) {
                 if (fitness[num] > max) {

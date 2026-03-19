@@ -6,15 +6,15 @@ import java.util.Random;
 
 public class Estocastico implements Seleccion{
     @Override
-    public Cromosoma[] seleccionar(Cromosoma[] poblacion, int[] fitness) {
+    public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
 
         // desplazar fitness para que el mínimo sea 0 (igual que Ruleta)
-        int min = Integer.MAX_VALUE;
-        for (int fit : fitness)
+        double min = Integer.MAX_VALUE;
+        for (double fit : fitness)
             if (fit < min) min = fit;
-        int offset = (min < 0) ? -min : 0;
+        double offset = (min < 0) ? -min : 0;
 
-        int[] fitnessAjustado = new int[fitness.length];
+        double[] fitnessAjustado = new double[fitness.length];
         int total = 0;
         for (int i = 0; i < fitness.length; i++) {
             fitnessAjustado[i] = fitness[i] + offset;

@@ -195,16 +195,6 @@ public class Configuracion extends JPanel{
         add(cruce, gbc);
         y++;
 
-        // Auxiliar Cruce
-        gbc.gridx = 0;
-        gbc.gridy = y;
-        add(new JLabel("Auxiliar (%):"), gbc);
-
-        gbc.gridx = 1;
-        this.auxiliar = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
-        add(auxiliar, gbc);
-        y++;
-
         // Forma de mutación
         gbc.gridx = 0;
         gbc.gridy = y;
@@ -225,7 +215,7 @@ public class Configuracion extends JPanel{
         add(new JLabel("Elitismo (%):"), gbc);
 
         gbc.gridx = 1;
-        this.elitismo = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+        this.elitismo = new JSpinner(new SpinnerNumberModel(5, 0, 100, 1));
         add(elitismo, gbc);
         y++;
 

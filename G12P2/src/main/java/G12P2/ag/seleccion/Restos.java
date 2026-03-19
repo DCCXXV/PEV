@@ -6,16 +6,16 @@ import G12P2.cromosomas.Cromosoma;
 public class Restos implements Seleccion {
 
     @Override
-    public Cromosoma[] seleccionar(Cromosoma[] poblacion, int[] fitness) {
+    public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
         int n = poblacion.length;
 
         // desplazar fitness para que no sea negativo
-        int min = Integer.MAX_VALUE;
-        for (int fit : fitness) if (fit < min) min = fit;
-        int offset = min < 0 ? -min : 0;
+        double min = Double.MAX_VALUE;
+        for (double fit : fitness) if (fit < min) min = fit;
+        double offset = min < 0 ? -min : 0;
 
         int total = 0;
-        int[] fitnessAjustado = new int[n];
+        double[] fitnessAjustado = new double[n];
         for (int i = 0; i < n; i++) {
             fitnessAjustado[i] = fitness[i] + offset;
             total += fitnessAjustado[i];

@@ -5,10 +5,10 @@ import G12P2.cromosomas.Cromosoma;
 
 public class Truncamiento implements Seleccion {
 
-    private record datos(Cromosoma cromosoma, int fitness) {}
+    private record datos(Cromosoma cromosoma, double fitness) {}
 
     @Override
-    public Cromosoma[] seleccionar(Cromosoma[] poblacion, int[] fitness) {
+    public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
         //enlaza cada cromosoma a su fitness
         datos cromosomasOrdenados[] = new datos[poblacion.length];
         for (int i = 0; i < poblacion.length; i++) cromosomasOrdenados[i] =
@@ -16,8 +16,8 @@ public class Truncamiento implements Seleccion {
 
         //ordena de mayor a menor (si la resta da negativa pone primero a p1)
         Arrays.sort(
-            cromosomasOrdenados,
-            (dato1, dato2) -> dato2.fitness - dato1.fitness
+                cromosomasOrdenados,
+                (dato1, dato2) -> Double.compare(dato2.fitness, dato1.fitness)
         );
 
         //itero hasta tener la poblacion necesaria

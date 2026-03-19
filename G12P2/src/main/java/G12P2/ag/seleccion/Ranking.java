@@ -1,18 +1,20 @@
 package G12P2.ag.seleccion;
 
 import G12P2.cromosomas.Cromosoma;
+
+import java.util.Comparator;
 import java.util.Random;
 
 public class Ranking implements Seleccion {
 
     @Override
-    public Cromosoma[] seleccionar(Cromosoma[] poblacion, int[] fitness) {
+    public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
         int n = poblacion.length;
 
         // ordenar de menor a mayor fitness -> rank 1 al de menor, rank N al de mayor
         Integer[] indices = new Integer[n];
         for (int i = 0; i < n; i++) indices[i] = i;
-        java.util.Arrays.sort(indices, (a, b) -> fitness[a] - fitness[b]);
+        java.util.Arrays.sort(indices, Comparator.comparingDouble(a -> fitness[a]));
 
         // asignar probabilidad a cada rango (usamos Prob. rangoK = rangoK / N*(N+1)/2)
         double total = (n * (n + 1)) / 2.0;
