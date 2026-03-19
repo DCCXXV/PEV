@@ -20,7 +20,7 @@ public class Main {
 //        });
 
         //TODO quitar esto que es solo pruebas
-        Scene scene = new Scene(Mapas.getMapa("SuperMercado"), Mapas.getInicio("SuperMercado"), 5, 3000);
+        Scene scene = new Scene(Mapas.getMapa("SuperMercado"), Mapas.getInicio("SuperMercado"), 4, 3000);
         int[][] grid = Mapas.getMapa("SuperMercado");
         int[][] camaras = scene.getPosCamaras(); // las que sean
 
@@ -35,9 +35,9 @@ public class Main {
 
         int[][] mapa = Mapas.getMapa("SuperMercado");
         int[] inicio = Mapas.getInicio("SuperMercado");
-        Supplier<CromosomaDrones> supplier = () -> new CromosomaDrones(1, scene);
+        Supplier<CromosomaDrones> supplier = () -> new CromosomaDrones(2, scene);
         CromosomaDrones cromosomaDrones = supplier.get();
-        cromosomaDrones.setGenes(new int[]{1,2,3,4,5});
+        cromosomaDrones.setGenes(new int[]{1,2,5,3,4});
         resEvaluacion res = EvaluacionDrones.evaluar(cromosomaDrones);
         tablero.setRutas(res.getCaminos());
         tablero.repaint();

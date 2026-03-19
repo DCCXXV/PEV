@@ -29,6 +29,7 @@ public class EvaluacionDrones {
         int numDrones = cromosoma.getNumDrones();
 
         //saca el mapa y las posiciones de las camaras
+        //importante primero viene la Y y luego la X en el array de posiciones de las camara
         mapa = scene.getGrid();
         camaras = scene.getPosCamaras();
 
@@ -44,21 +45,19 @@ public class EvaluacionDrones {
         Pos objectivePos = new Pos(camaras[objective - 1][1], camaras[objective - 1][0]);
 
         //lo que se devolvera al final
-        int costeAcumulado = 0;
-        //camino total
-        List<int[]> path = new ArrayList<>();
-        path.add(new int[]{hangar[0], hangar[1]});
+        int[] costeAcumulado = new int[numDrones];
+        //camino de cada dron
+        List<List<int[]>> caminos = new ArrayList<>();
 
         int i = 0;
+        int currentDron = -1;
         while (i < numCamaras + numDrones - 1) {
-            //posiciones de las camaras
-            //importante primero viene la Y y luego la X en el array de posiciones de las camara
-            //TODO no solo hay que ir desde el inicio al principio sino cada vez que se cambie de dron
-            //TODO falta dividir por la velocidad del dron
-
             //si se cumple esto se comienza el recorrido de un dron
-            if (current > numCamaras)
+            if (current > numCamaras) {
                 currentPos = new Pos(hangar[0], hangar[1]);
+                currentDron++;
+                caminos.add(new ArrayList<>());
+            }
             else
                 currentPos = new Pos(camaras[current - 1][1], camaras[current - 1][0]);
 
@@ -70,8 +69,10 @@ public class EvaluacionDrones {
 
             //se suma el coste y se suma registra el camino
             resAestrella res = aEstrella(currentPos, objectivePos);
-            costeAcumulado += res.coste;
-            path.addAll(res.path);
+
+            //TODO estas dos no tienen que ser acumulativas entre drones
+            costeAcumulado[currentDron] += res.coste;
+            caminos.get(currentDron).addAll(res.path);
 
             //camara actual y camara objetivo actual
             current = genes[i];
@@ -80,18 +81,26 @@ public class EvaluacionDrones {
             else
                 objective = numCamaras+1;
 
+            //se avanza y mira el siguiente gen
             i++;
         }
+        //se mete el camino de vuelta del ultimo dron
         resAestrella res = aEstrella(objectivePos, new Pos(hangar[0], hangar[1]));
-        costeAcumulado += res.coste;
-        path.addAll(res.path);
+        costeAcumulado[currentDron] += res.coste;
+        caminos.get(currentDron).addAll(res.path);
 
+        //se guardan todos los caminos de los drones
         List<List<int[]>> aux = new ArrayList<>();
-        aux.add(path);
+        for (List<int[]> camino : caminos)
+            aux.add(camino);
+
+        //se devuelve el dron mas lento
+        List<Double> velocidades = cromosoma.getVelocidades();
+        //TODO aqui hago el calculo con las velocidades
 
         return new resEvaluacion(
-                costeAcumulado,
-                aux
+                costeAcumulado[0],
+                caminos
         );
     }
 
@@ -157,6 +166,7 @@ public class EvaluacionDrones {
             path.add(new int[]{current.X,current.Y});
             current = parent.get(new Pos(current.X,current.Y));
         }
+        path.add(new int[]{ini.X, ini.Y});
         Collections.reverse(path);
 
         return new resAestrella(objetivo.coste, path);

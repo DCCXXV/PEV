@@ -47,6 +47,10 @@ public class CromosomaDrones implements Cromosoma {
         return valores.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    public List<Double> getVelocidades(){
+        return velocidadDronI;
+    }
+
     public int[] getGenes() {
         return genes;
     }

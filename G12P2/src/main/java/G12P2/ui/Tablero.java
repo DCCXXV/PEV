@@ -141,6 +141,15 @@ public class Tablero extends JPanel {
     }
 
     private void pintarLineas(List<List<int[]>> rutasDrones) {
+        int i = 0;
+        Color[] colores = new Color[]{
+                new Color(255, 0, 0, 134),
+                new Color(0, 255, 196, 128),
+                new Color(255, 255, 255, 255),
+                new Color(255, 255, 255, 255),
+                new Color(255, 255, 255, 255)
+        };
+
         int[] prev = new int[2];
         int[] current = new int[2];
         for (List<int[]> ruta : rutasDrones) {
@@ -149,11 +158,12 @@ public class Tablero extends JPanel {
             for (int j = 1; j < ruta.size(); j++) {
                 current[0] = ruta.get(j)[1];
                 current[1] = ruta.get(j)[0];
-                Color color = new Color(0, 204, 255, 128);
+                Color color = colores[i];
                 pintarLinea(g2, prev, current, color);
                 prev[0] = current[0];
                 prev[1] = current[1];
             }
+            i++;
         }
     }
 
