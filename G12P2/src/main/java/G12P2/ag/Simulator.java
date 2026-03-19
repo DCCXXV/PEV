@@ -10,6 +10,7 @@ import G12P2.ui.Tablero;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -113,7 +114,8 @@ public class Simulator {
             int numCamaras = sceneMejor.getNumCamaras();
             int[][] gridMejor = sceneMejor.getGrid();
             int[][] camarasMejor = sceneMejor.getPosCamaras();
-            tablero.setTablero(gridMejor, camarasMejor, mejorFitnessAbsoluto, null);
+            //TODO que de la evaluacion saque los datos y los envie aqui
+            //tablero.setMejor();
 
             mejoresPorGeneracion[generacionActual] = mejorGen;
             mejoresAbsolutos[generacionActual] = mejorFitnessAbsoluto;

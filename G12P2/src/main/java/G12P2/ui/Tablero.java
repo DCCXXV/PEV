@@ -12,8 +12,10 @@ public class Tablero extends JPanel {
     //informacion del tablero
     private int[][] grid;
     private int[][] camaras;
-    private int mejorFiness = 0;
+    private double mejorFiness = 0;
+    private double[] tiemposDrones;
     private List<List<int[]>> rutasDrones;
+    int[] cromosoma;
 
     //variables auxiliares del tablero
     Graphics2D g2 = null;
@@ -21,6 +23,15 @@ public class Tablero extends JPanel {
     int altoTablero = 0;
     int offsetX = 0;
     int offsetY = 0;
+
+    // Colores para cada dron
+    Color[] coloresDrones = new Color[] {
+            new Color(255, 80, 80, 173),   // D1 - rojo
+            new Color(80, 200, 80, 173),   // D2 - verde
+            new Color(80, 150, 255, 173),  // D3 - azul
+            new Color(255, 174, 0, 173),   // D4 - amarillo
+            new Color(200, 80, 255, 173)   // D5 - morado
+    };
 
     public Tablero(int[][] grid, int[][] camaras) {
         this.grid = grid;
@@ -120,35 +131,87 @@ public class Tablero extends JPanel {
             g2.drawString(texto, textX, textY);
         }
 
-        if (this.rutasDrones != null) {
+        //si hay rutas de drones las pinta
+        if (this.rutasDrones != null)
             pintarLineas(this.rutasDrones);
-        }
+
+        //si hay mejorFitness lo pinta
+        if (this.mejorFiness != 0)
+            pintarDatos();
     }
 
-    private void pintarMejorFitness() {
+    private void pintarDatos() {
         g2.setColor(Color.BLACK);
-        g2.setFont(new Font("Arial", Font.BOLD, 16));
-
-        String texto = String.valueOf(this.mejorFiness);
-
+        g2.setFont(new Font("Arial", Font.BOLD, 15));
         FontMetrics fm = g2.getFontMetrics();
-        int textWidth = fm.stringWidth(texto);
 
-        int textX = offsetX + (anchoTablero - textWidth) / 2;
+        //MEJOR FITNESS
+        String mejorFitness = "Fitness: " + String.format("%.2f", this.mejorFiness);
+        int textWidth = fm.stringWidth(mejorFitness);
+        int textX = offsetX;
         int textY = offsetY + altoTablero + fm.getAscent() + 10;
+        g2.drawString(mejorFitness, textX, textY);
 
-        g2.drawString(texto, textX, textY);
+        //cambio el tamaño de la letra
+        g2.setFont(new Font("Arial", Font.BOLD, 11));
+        fm = g2.getFontMetrics();
+
+        //TIEMPOS POR DRON
+        String[] drones = new String[] {
+                "D1 (x1.5): ",
+                " D2 (x1.0): ",
+                " D3 (x0.7): ",
+                " D4 (x1.2): ",
+                " D5 (x0.5): "
+        };
+
+        textY += 25;
+        textX = offsetX;
+
+        //Primero el título en color normal
+        g2.drawString("Tiempos por Dron: ", textX, textY);
+        textY += 15;
+
+        //Luego cada dron con su color
+        for (int i = 0; i < this.tiemposDrones.length; i++) {
+            String texto = drones[i] + String.format("%.2f", this.tiemposDrones[i]);
+            g2.setColor(coloresDrones[i]);
+            g2.drawString(texto, textX, textY);
+            textX += fm.stringWidth(texto);
+        }
+
+        // Restaurar color por defecto
+        textY += 25;
+        g2.setColor(Color.BLACK);
+
+        //CROMOSOMA
+        textX = offsetX;
+        g2.drawString("Cromosoma: [ ", textX, textY);
+        textX += fm.stringWidth("Cromosoma: [");
+
+        int colorDron = 0;
+        for (int i : cromosoma) {
+            if (i > camaras.length) {
+                String texto = " |";
+                g2.setColor(Color.BLACK);
+                g2.drawString(texto, textX, textY);
+                textX += fm.stringWidth(texto);
+                colorDron++;
+                continue;
+            }
+            String texto = " " + String.valueOf(i);
+            g2.setColor(coloresDrones[colorDron]);
+            g2.drawString(texto, textX, textY);
+            textX += fm.stringWidth(texto);
+        }
+
+        g2.setColor(Color.BLACK);
+        g2.drawString(" ]", textX, textY);
+        textX += fm.stringWidth(" ]");
     }
 
     private void pintarLineas(List<List<int[]>> rutasDrones) {
         int i = 0;
-        Color[] colores = new Color[]{
-                new Color(255, 0, 0, 134),
-                new Color(0, 255, 196, 128),
-                new Color(255, 255, 255, 255),
-                new Color(255, 255, 255, 255),
-                new Color(255, 255, 255, 255)
-        };
 
         int[] prev = new int[2];
         int[] current = new int[2];
@@ -158,7 +221,7 @@ public class Tablero extends JPanel {
             for (int j = 1; j < ruta.size(); j++) {
                 current[0] = ruta.get(j)[1];
                 current[1] = ruta.get(j)[0];
-                Color color = colores[i];
+                Color color = coloresDrones[i];
                 pintarLinea(g2, prev, current, color);
                 prev[0] = current[0];
                 prev[1] = current[1];
@@ -189,7 +252,10 @@ public class Tablero extends JPanel {
         this.repaint();
     }
 
-    public void setRutas(List<List<int[]>> rutasDrones) {
+    public void setMejor(double fitness, double[] tiemposDrones, List<List<int[]>> rutasDrones, int[] Cromosoma) {
+        this.mejorFiness = fitness;
+        this.tiemposDrones = tiemposDrones;
         this.rutasDrones = rutasDrones;
+        this.cromosoma = Cromosoma;
     }
 }

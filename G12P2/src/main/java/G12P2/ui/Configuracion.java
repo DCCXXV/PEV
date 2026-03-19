@@ -106,6 +106,10 @@ public class Configuracion extends JPanel{
         add(semilla, gbc);
         y++;
 
+        this.semilla.addChangeListener(e -> {
+            generarTablero(tablero);
+        });
+
         // Poblacion
         gbc.gridx = 0;
         gbc.gridy = y;

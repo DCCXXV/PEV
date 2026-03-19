@@ -49,9 +49,8 @@ public class EvaluacionDrones {
         //camino de cada dron
         List<List<int[]>> caminos = new ArrayList<>();
 
-        int i = 0;
         int currentDron = -1;
-        while (i < numCamaras + numDrones - 1) {
+        for (int i = 0; i < genes.length; i++) {
             //si se cumple esto se comienza el recorrido de un dron
             if (current > numCamaras) {
                 currentPos = new Pos(hangar[0], hangar[1]);
@@ -69,8 +68,6 @@ public class EvaluacionDrones {
 
             //se suma el coste y se suma registra el camino
             resAestrella res = aEstrella(currentPos, objectivePos);
-
-            //TODO estas dos no tienen que ser acumulativas entre drones
             costeAcumulado[currentDron] += res.coste;
             caminos.get(currentDron).addAll(res.path);
 
@@ -80,10 +77,8 @@ public class EvaluacionDrones {
                 objective = genes[i + 1];
             else
                 objective = numCamaras+1;
-
-            //se avanza y mira el siguiente gen
-            i++;
         }
+
         //se mete el camino de vuelta del ultimo dron
         resAestrella res = aEstrella(objectivePos, new Pos(hangar[0], hangar[1]));
         costeAcumulado[currentDron] += res.coste;
@@ -94,13 +89,23 @@ public class EvaluacionDrones {
         for (List<int[]> camino : caminos)
             aux.add(camino);
 
-        //se devuelve el dron mas lento
+        //se devuelve el dron mas lento teniendo en cuenta las velocidades
         List<Double> velocidades = cromosoma.getVelocidades();
-        //TODO aqui hago el calculo con las velocidades
+        double[] costesReales = new double[numDrones];
+        double max = -1;
+        for (int i = 0; i < numDrones; i++) {
+            double costeReal = costeAcumulado[i] / velocidades.get(i);
+            costesReales[i] = costeReal;
+            if (costeReal > max) {
+                max = costeReal;
+            }
+        }
 
         return new resEvaluacion(
-                costeAcumulado[0],
-                caminos
+                max,
+                costesReales,
+                caminos,
+                cromosoma
         );
     }
 
@@ -133,6 +138,7 @@ public class EvaluacionDrones {
 
             //se mira cada uno de sus adyacentes
             for (Nodo vecino : adyacentes(nodo, fin)) {
+
                 //se encuentra el objetivo y se para la busqueda
                 if (vecino.X == fin.X && vecino.Y == fin.Y) {
                     encontrado = true;
@@ -231,11 +237,11 @@ public class EvaluacionDrones {
     private static int costeCasilla(int X, int Y, Pos fin) {
         //si es la camara objetivo avanzar solo cuesta 1
         if (fin.X == X && fin.Y == Y)
-            return 1;
+            return mapa[Y][X];
 
         //si es una camara que no es el objetivo avanzar a esa casilla es penalizado con 500 de coste
         if (mapa[Y][X] == -1)
-            return 500;
+            return mapa[Y][X] + 500;
 
         //de otra manera se devuelve el valor que esta presenten en la matriz del mapa
         return mapa[Y][X];
