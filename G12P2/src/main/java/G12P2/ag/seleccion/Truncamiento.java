@@ -14,10 +14,10 @@ public class Truncamiento implements Seleccion {
         for (int i = 0; i < poblacion.length; i++) cromosomasOrdenados[i] =
             new datos(poblacion[i], fitness[i]);
 
-        //ordena de mayor a menor (si la resta da negativa pone primero a p1)
+        //ordena de menor a mayor (si la resta da negativa pone primero a p1)
         Arrays.sort(
                 cromosomasOrdenados,
-                (dato1, dato2) -> Double.compare(dato2.fitness, dato1.fitness)
+                (dato1, dato2) -> Double.compare(dato1.fitness, dato2.fitness)
         );
 
         //itero hasta tener la poblacion necesaria

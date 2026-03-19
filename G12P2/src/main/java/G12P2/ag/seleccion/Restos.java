@@ -1,7 +1,7 @@
 package G12P2.ag.seleccion;
 
-import java.util.Random;
 import G12P2.cromosomas.Cromosoma;
+import java.util.Random;
 
 public class Restos implements Seleccion {
 
@@ -9,15 +9,13 @@ public class Restos implements Seleccion {
     public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
         int n = poblacion.length;
 
-        // desplazar fitness para que no sea negativo
-        double min = Double.MAX_VALUE;
-        for (double fit : fitness) if (fit < min) min = fit;
-        double offset = min < 0 ? -min : 0;
+        double max = -Double.MAX_VALUE;
+        for (double fit : fitness) if (fit > max) max = fit;
 
         int total = 0;
         double[] fitnessAjustado = new double[n];
         for (int i = 0; i < n; i++) {
-            fitnessAjustado[i] = fitness[i] + offset;
+            fitnessAjustado[i] = max - fitness[i];
             total += fitnessAjustado[i];
         }
 

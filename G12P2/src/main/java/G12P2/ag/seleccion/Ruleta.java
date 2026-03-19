@@ -1,28 +1,19 @@
 package G12P2.ag.seleccion;
 
-import java.util.Random;
 import G12P2.cromosomas.Cromosoma;
+import java.util.Random;
 
 public class Ruleta implements Seleccion {
 
     @Override
     public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
-        double min = Integer.MAX_VALUE;
-        for (double fit : fitness) {
-            if (fit < min) {
-                min = fit;
-            }
-        }
-        double minAbs = Math.abs(min);
+        double max = -Double.MAX_VALUE;
+        for (double fit : fitness) if (fit > max) max = fit;
 
-        //ajusta los fitness para que los negativos sean 0
-        //y aprovecha y saca el acumulado
         int total = 0;
         double fitnessAjustado[] = new double[fitness.length];
         for (int i = 0; i < fitness.length; i++) {
-            if (fitness[i] < 0) fitnessAjustado[i] = fitness[i] + minAbs;
-            else fitnessAjustado[i] = fitness[i];
-
+            fitnessAjustado[i] = max - fitness[i];
             total += fitnessAjustado[i];
         }
 

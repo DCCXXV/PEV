@@ -1,23 +1,19 @@
 package G12P2.ag.seleccion;
 
 import G12P2.cromosomas.Cromosoma;
-
 import java.util.Random;
 
-public class Estocastico implements Seleccion{
+public class Estocastico implements Seleccion {
+
     @Override
     public Cromosoma[] seleccionar(Cromosoma[] poblacion, double[] fitness) {
-
-        // desplazar fitness para que el mínimo sea 0 (igual que Ruleta)
-        double min = Integer.MAX_VALUE;
-        for (double fit : fitness)
-            if (fit < min) min = fit;
-        double offset = (min < 0) ? -min : 0;
+        double max = -Double.MAX_VALUE;
+        for (double fit : fitness) if (fit > max) max = fit;
 
         double[] fitnessAjustado = new double[fitness.length];
         int total = 0;
         for (int i = 0; i < fitness.length; i++) {
-            fitnessAjustado[i] = fitness[i] + offset;
+            fitnessAjustado[i] = max - fitness[i];
             total += fitnessAjustado[i];
         }
 
@@ -26,8 +22,8 @@ public class Estocastico implements Seleccion{
 
         // si todos tienen fitness 0, selección uniforme aleatoria
         if (total == 0) {
-            for (int i = 0; i < poblacion.length; i++)
-                nuevaPoblacion[i] = poblacion[rand.nextInt(poblacion.length)].copia();
+            for (int i = 0; i < poblacion.length; i++) nuevaPoblacion[i] =
+                poblacion[rand.nextInt(poblacion.length)].copia();
             return nuevaPoblacion;
         }
 
@@ -41,7 +37,9 @@ public class Estocastico implements Seleccion{
         int acumulado = 0;
         int i = 0;
         int numEncontrados = 0;
-        while (i < fitnessAjustado.length && numEncontrados < poblacion.length) {
+        while (
+            i < fitnessAjustado.length && numEncontrados < poblacion.length
+        ) {
             acumulado += fitnessAjustado[i];
             while (current < acumulado && numEncontrados < poblacion.length) {
                 nuevaPoblacion[numEncontrados] = poblacion[i].copia();
@@ -53,7 +51,8 @@ public class Estocastico implements Seleccion{
 
         // relleno de seguridad por si quedan huecos
         while (numEncontrados < poblacion.length) {
-            nuevaPoblacion[numEncontrados] = poblacion[poblacion.length - 1].copia();
+            nuevaPoblacion[numEncontrados] = poblacion[poblacion.length -
+            1].copia();
             numEncontrados++;
         }
 

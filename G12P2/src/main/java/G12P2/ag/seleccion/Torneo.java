@@ -1,7 +1,7 @@
 package G12P2.ag.seleccion;
 
-import java.util.*;
 import G12P2.cromosomas.Cromosoma;
+import java.util.*;
 
 public class Torneo implements Seleccion {
 
@@ -19,11 +19,11 @@ public class Torneo implements Seleccion {
             );
 
             //se miran 3 y se queda con el mejor
-            double max = Integer.MIN_VALUE;
+            double min = Double.MAX_VALUE;
             int selected = -1;
             for (int num : numeros) {
-                if (fitness[num] > max) {
-                    max = fitness[num];
+                if (fitness[num] < min) {
+                    min = fitness[num];
                     selected = num;
                 }
             }
