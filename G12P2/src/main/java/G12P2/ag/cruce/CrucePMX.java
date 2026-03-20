@@ -20,40 +20,56 @@ public class CrucePMX implements Cruce {
 
         int[] genes1 = p1.getGenes();
         int[] genes2 = p2.getGenes();
+        int n = genes1.length;
 
-        // puntos de corte elegido al azar
-        int puntoCorte1 = rng.nextInt(genes1.length);
-        int puntoCorte2 = rng.nextInt(genes1.length);
-        if (puntoCorte1 > puntoCorte2) {
-            int temp = puntoCorte1;
-            puntoCorte1 = puntoCorte2;
-            puntoCorte2 = temp;
+        // puntos de corte elegidos al azar (al menos 1 elemento de segmento)
+        int c1 = rng.nextInt(n);
+        int c2 = rng.nextInt(n);
+        if (c1 > c2) {
+            int t = c1;
+            c1 = c2;
+            c2 = t;
+        }
+        if (c1 == c2) c2 = Math.min(c2 + 1, n - 1);
+
+        // copias originales para seguir las cadenas de resolución
+        int[] orig1 = genes1.clone();
+        int[] orig2 = genes2.clone();
+
+        // mapas valor→posición en el segmento (para resolver conflictos)
+        Map<Integer, Integer> posEnSeg1 = new HashMap<>();
+        Map<Integer, Integer> posEnSeg2 = new HashMap<>();
+        Set<Integer> seg1 = new HashSet<>();
+        Set<Integer> seg2 = new HashSet<>();
+
+        for (int i = c1; i <= c2; i++) {
+            seg1.add(orig1[i]);
+            seg2.add(orig2[i]);
+            posEnSeg1.put(orig1[i], i);
+            posEnSeg2.put(orig2[i], i);
+            // intercambio del segmento central
+            genes1[i] = orig2[i];
+            genes2[i] = orig1[i];
         }
 
-        Map<Integer, Integer> pareja = new HashMap<>();
-        Set<Integer> segGenes1 = new HashSet<>();
-        Set<Integer> segGenes2 = new HashSet<>();
-        for (int i = puntoCorte1; i < puntoCorte2; i++) {
-            // guardar elementos de los segmentos centrales
-            segGenes1.add(genes1[i]);
-            segGenes2.add(genes2[i]);
-            // parejas
-            pareja.put(genes1[i], genes2[i]);
-            pareja.put(genes2[i], genes1[i]);
-            // intercambio de segmento central
-            int temp = genes1[i];
-            genes1[i] = genes2[i];
-            genes2[i] = temp;
-        }
+        // resolver conflictos fuera del segmento
+        for (int i = 0; i < n; i++) {
+            if (i >= c1 && i <= c2) continue;
 
-        for (int i = 0; i < genes1.length; i++) {
-            if (i >= puntoCorte1 && i < puntoCorte2) continue;
-            while (segGenes2.contains(genes1[i])) {
-                genes1[i] = pareja.get(genes1[i]);
+            // hijo1; si el valor original de padre1 ya está en el segmento de padre2,
+            // seguimos la cadena: buscamos qué tenía padre1 en la posición donde padre2 tenía ese valor
+            int v1 = orig1[i];
+            while (seg2.contains(v1)) {
+                v1 = orig1[posEnSeg2.get(v1)];
             }
-            while (segGenes1.contains(genes2[i])) {
-                genes2[i] = pareja.get(genes2[i]);
+            genes1[i] = v1;
+
+            // hijo2; análogo con padre2
+            int v2 = orig2[i];
+            while (seg1.contains(v2)) {
+                v2 = orig2[posEnSeg1.get(v2)];
             }
+            genes2[i] = v2;
         }
     }
 }
