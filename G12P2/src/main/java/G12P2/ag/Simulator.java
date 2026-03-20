@@ -11,6 +11,7 @@ import G12P2.ui.Tablero;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 public class Simulator {
 
@@ -38,6 +39,10 @@ public class Simulator {
     private boolean memetico;
     private boolean memeticoElite;
     private double porcentajeMemetico;
+
+    // generaciones consecutivas sin mejora del mejor absoluto antes de suspender la búsqueda memética
+    private static final int STAGNATION_LIMIT = 15;
+    private int generacionesSinMejora = 0;
 
     boolean terminoEjecucion = false;
     private List<double[]> optimosPareto;
@@ -104,7 +109,7 @@ public class Simulator {
             cruce(probCruce);
             mutacion(probMutacion);
             introducirElite();
-            if (memetico) {
+            if (memetico && generacionesSinMejora < STAGNATION_LIMIT) {
                 if (memeticoElite)
                     busquedaSobreElite();
                 else
@@ -115,6 +120,7 @@ public class Simulator {
             // recoger stats de esta generacion
             double mejorGen = Double.MAX_VALUE;
             double suma = 0;
+            double fitAntes = mejorFitnessAbsoluto;
             for (int i = 0; i < tamPoblacion; i++) {
                 suma += fitness[i];
                 if (fitness[i] < mejorGen) {
@@ -126,6 +132,16 @@ public class Simulator {
                     mejorEvaluacion = this.resEvaluacion[i];
                 }
                 comprobarOptimosPareto(this.resEvaluacion[i]);
+            }
+
+            // actualizar contador de estancamiento
+            if (mejorFitnessAbsoluto < fitAntes) {
+                generacionesSinMejora = 0;
+            } else {
+                generacionesSinMejora++;
+                // reactivar periódicamente por si el AG logra escapar del óptimo local
+                if (generacionesSinMejora >= STAGNATION_LIMIT * 2)
+                    generacionesSinMejora = 0;
             }
 
             //SE MANDA EL RESULTADO A LA GRAFICA
@@ -252,23 +268,19 @@ public class Simulator {
     }
 
     private void busuedaSobrePoblacion() {
-        for (int k = 0; k < poblacion.length; k++) {
-            if (Math.random() >= this.porcentajeMemetico)
-                continue;
-            if (!(poblacion[k] instanceof CromosomaDrones)) continue;
-
+        IntStream.range(0, poblacion.length).parallel().forEach(k -> {
+            if (Math.random() >= this.porcentajeMemetico) return;
+            if (!(poblacion[k] instanceof CromosomaDrones)) return;
             aplicarBusquedaLocal(k);
-        }
+        });
     }
 
     private void busquedaSobreElite() {
-        for (int k = 0; k < idxElite.length; k++) {
-            if (Math.random() >= this.porcentajeMemetico)
-                continue;
-            if (!(poblacion[k] instanceof CromosomaDrones)) continue;
-
+        IntStream.range(0, idxElite.length).parallel().forEach(k -> {
+            if (Math.random() >= this.porcentajeMemetico) return;
+            if (!(poblacion[idxElite[k]] instanceof CromosomaDrones)) return;
             aplicarBusquedaLocal(idxElite[k]);
-        }
+        });
     }
 
     /**
