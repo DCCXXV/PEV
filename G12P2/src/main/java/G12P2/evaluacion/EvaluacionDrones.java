@@ -15,6 +15,7 @@ public class EvaluacionDrones {
     //mapa
     private static int mapa[][];
     private static int[][] camaras;
+    private static boolean[][] gridCamaras;
 
     public static ResEvaluacion evaluar(CromosomaDrones cromosoma) {
 
@@ -32,6 +33,7 @@ public class EvaluacionDrones {
         //importante primero viene la Y y luego la X en el array de posiciones de las camara
         mapa = scene.getGrid();
         camaras = scene.getPosCamaras();
+        gridCamaras = scene.getGridCamaras();
 
         //saca los genes de este cromosoma
         int[] genes = cromosoma.getGenes();
@@ -52,33 +54,43 @@ public class EvaluacionDrones {
 
         List<List<int[]>> caminos = new ArrayList<>();
         int[] costeAcumulado = new int[numDrones];
-        for (int ii = 0; ii < recorridosDrones.size();  ii++) {
+        for (int i = 0; i < recorridosDrones.size();  i++) {
             //excepcion si el dron no tiene recorrido
-            if (recorridosDrones.get(ii).size() == 0) {
+            if (recorridosDrones.get(i).size() == 0) {
                 caminos.add(new ArrayList<int[]>());
-                costeAcumulado[ii] = 0;
+                costeAcumulado[i] = 0;
                 continue;
             }
-            resAestrella res = procesarRecorridoDron(recorridosDrones.get(ii), hangar);
+            resAestrella res = procesarRecorridoDron(recorridosDrones.get(i), hangar);
             caminos.add(res.path);
-            costeAcumulado[ii] = res.coste;
+            costeAcumulado[i] = res.coste;
         }
 
         //se devuelve el dron mas lento teniendo en cuenta las velocidades
         List<Double> velocidades = cromosoma.getVelocidades();
         double[] costesReales = new double[numDrones];
+        double[] eficienciasDrones = new double[numDrones];
+        double eficiencias = 0;
         double max = -1;
-        for (int ii = 0; ii < numDrones; ii++) {
-            double costeReal = costeAcumulado[ii] / velocidades.get(ii);
-            costesReales[ii] = costeReal;
-            if (costeReal > max) {
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < numDrones; i++) {
+            double costeReal = costeAcumulado[i] / velocidades.get(i);
+            double eficiencia = costeAcumulado[i] * velocidades.get(i);
+            costesReales[i] = costeReal;
+            eficienciasDrones[i] = eficiencia;
+            eficiencias += eficiencia;
+            if (costeReal > max)
                 max = costeReal;
-            }
+            if (costeReal < min)
+                min = costeReal;
         }
 
+        double fitnessFinal = max + ((max - min) * 0.5);
         return new ResEvaluacion(
-                max,
+                fitnessFinal,
+                eficiencias,
                 costesReales,
+                eficienciasDrones,
                 caminos,
                 cromosoma
         );
@@ -298,8 +310,8 @@ public class EvaluacionDrones {
             return mapa[Y][X];
 
         //si es una camara que no es el objetivo avanzar a esa casilla es penalizado con 500 de coste
-        if (mapa[Y][X] == -1)
-            return mapa[Y][X] + 500;
+        if (gridCamaras[Y][X])
+            return 500;
 
         //de otra manera se devuelve el valor que esta presenten en la matriz del mapa
         return mapa[Y][X];

@@ -13,7 +13,9 @@ public class Tablero extends JPanel {
     private int[][] grid;
     private int[][] camaras;
     private double mejorFiness = 0;
+    private double energia = 0;
     private double[] tiemposDrones;
+    private double[] energiaDrones;
     private List<List<int[]>> rutasDrones;
     int[] cromosoma;
 
@@ -144,11 +146,12 @@ public class Tablero extends JPanel {
         FontMetrics fm = g2.getFontMetrics();
 
         //MEJOR FITNESS
-        String mejorFitness = "Fitness: " + String.format("%.2f", this.mejorFiness);
-        int textWidth = fm.stringWidth(mejorFitness);
+        String textoPrincipal = "Tiempo: " + String.format("%.2f", this.mejorFiness);
+        textoPrincipal += "     Energia: " + String.format("%.2f", this.energia);
+        int textWidth = fm.stringWidth(textoPrincipal);
         int textX = offsetX;
         int textY = offsetY + altoTablero + fm.getAscent() + 10;
-        g2.drawString(mejorFitness, textX, textY);
+        g2.drawString(textoPrincipal, textX, textY);
 
         //cambio el tamaño de la letra
         g2.setFont(new Font("Arial", Font.BOLD, 11));
@@ -167,12 +170,13 @@ public class Tablero extends JPanel {
         textX = offsetX;
 
         //Primero el título en color normal
-        g2.drawString("Tiempos por Dron: ", textX, textY);
+        g2.drawString("Tiempos y energia por Dron: ", textX, textY);
         textY += 15;
 
         //Luego cada dron en su propia línea con su color
         for (int i = 0; i < this.tiemposDrones.length; i++) {
-            String texto = drones[i] + String.format("%.2f", this.tiemposDrones[i]);
+            String texto = drones[i] + String.format("%-20.2f", this.tiemposDrones[i]);
+            texto += "energia: " + String.format("%.2f", this.energiaDrones[i]);
             g2.setColor(coloresDrones[i]);
             g2.drawString(texto, textX, textY);
             textY += 15;
@@ -228,8 +232,10 @@ public class Tablero extends JPanel {
         int[] current = new int[2];
         for (List<int[]> ruta : rutasDrones) {
             //si ese dron no hace nada se omite
-            if (ruta.isEmpty())
+            if (ruta.isEmpty()) {
+                i++;
                 continue;
+            }
 
             prev[0] = ruta.get(0)[1];
             prev[1] = ruta.get(0)[0];
@@ -268,9 +274,11 @@ public class Tablero extends JPanel {
         this.repaint();
     }
 
-    public void setMejor(double fitness, double[] tiemposDrones, List<List<int[]>> rutasDrones, int[] Cromosoma) {
+    public void setMejor(double fitness, double energia, double[] tiemposDrones, double[] energiaDrones, List<List<int[]>> rutasDrones, int[] Cromosoma) {
         this.mejorFiness = fitness;
+        this.energia = energia;
         this.tiemposDrones = tiemposDrones;
+        this.energiaDrones = energiaDrones;
         this.rutasDrones = rutasDrones;
         this.cromosoma = Cromosoma;
         SwingUtilities.invokeLater(this::repaint);

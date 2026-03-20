@@ -11,6 +11,7 @@ public class Grafica extends JPanel {
 
     private Plot2DPanel plot;
 
+    double max;
     int generaciones;
     LinePlot plotMejorGen;
     LinePlot plotMejorAbs;
@@ -25,6 +26,7 @@ public class Grafica extends JPanel {
         plot.addLegend("SOUTH");
         plot.setAxisLabels("Generacion", "Fitness");
 
+        max = 0;
         setLayout(new BorderLayout());
         add(plot, BorderLayout.CENTER);
     }
@@ -41,6 +43,7 @@ public class Grafica extends JPanel {
 
         //limpio la tabla de los datos que tuviera antes
         plot.removeAllPlots();
+        max = 0;
 
         //numero de generaciones para fijar el eje x
         this.generaciones = generaciones;
@@ -78,7 +81,9 @@ public class Grafica extends JPanel {
 
     public void actualizarGrafica(int generacion, double mejorGen, double mejorAbsoluto, double media) {
 
-        // actualizar solo la Y (la X ya es i)
+        if (media > max)
+            max = media;
+
         mejoresPorGeneracion[generacion][1] = mejorGen;
         mejoresAbsolutos[generacion][1] = mejorAbsoluto;
         mediaPorGeneracion[generacion][1] = media;
@@ -87,9 +92,11 @@ public class Grafica extends JPanel {
         plotMejorAbs.setData(mejoresAbsolutos);
         plotMedia.setData(mediaPorGeneracion);
 
-        plot.setFixedBounds(0, 0, generaciones);
-        plot.setFixedBounds(1, 0, 1500);
-        plot.repaint();
-        SwingUtilities.invokeLater(plot::repaint);
+        SwingUtilities.invokeLater(() -> {
+            plot.setFixedBounds(0, 0, generaciones);
+            plot.setFixedBounds(1, 0, max);
+            plot.repaint();
+            SwingUtilities.invokeLater(plot::repaint);
+        });
     }
 }

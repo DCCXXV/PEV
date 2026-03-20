@@ -6,13 +6,17 @@ import java.util.List;
 
 public class ResEvaluacion {
     private double fitness;
+    private double energia;
     private double[] tiemposDrones;
+    private double[] energiaDrones;
     private List<List<int[]>> caminos;
     private CromosomaDrones cromosoma;
 
-    public ResEvaluacion(double fitness, double[] tiemposDrones, List<List<int[]>> caminos, CromosomaDrones cromosoma) {
+    public ResEvaluacion(double fitness, double energia, double[] tiemposDrones, double[] energiaDrones, List<List<int[]>> caminos, CromosomaDrones cromosoma) {
         this.fitness = fitness;
+        this.energia = energia;
         this.tiemposDrones = tiemposDrones;
+        this.energiaDrones = energiaDrones;
         this.caminos = caminos;
         this.cromosoma = cromosoma;
     }
@@ -20,6 +24,8 @@ public class ResEvaluacion {
     public double getFitness() {
         return fitness;
     }
+    public double getEnergia() {return energia ;}
+    public double[] getEnergiaDrones() {return energiaDrones;}
     public double[] getTiemposDrones() {
         return tiemposDrones;
     }

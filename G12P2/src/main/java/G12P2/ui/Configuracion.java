@@ -10,10 +10,13 @@ import G12P2.ag.mutacion.MutacionIntercambio;
 import G12P2.ag.seleccion.*;
 import G12P2.cromosomas.Cromosoma;
 import G12P2.cromosomas.CromosomaDrones;
+import G12P2.evaluacion.ResEvaluacion;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.*;
 
 public class Configuracion extends JPanel{
 
@@ -31,12 +34,17 @@ public class Configuracion extends JPanel{
     private JComboBox<String> mutacion;
     private JSpinner elitismo;
     private JCheckBox memetico;
+    private JCheckBox memeticoElite;
+    private JSpinner porcentajeMemetico;
     private JButton ejecutar;
     private JButton cancelar;
+    private JLabel labelOptimos;
+    private JComboBox<String> optimos;
 
     //referencia al tablero y la grafica para actualizarlos
     Tablero tablero;
     Grafica grafica;
+    List<ResEvaluacion> resOptimos;
 
     //record con los datos que has seleccionado
     private record Datos(
@@ -52,7 +60,9 @@ public class Configuracion extends JPanel{
             Cruce cruce,
             Mutacion mutacion,
             double porcentajeElitismo,
-            boolean memetico
+            boolean memetico,
+            boolean memeticoElite,
+            double porcentajeMemetico
     ){};
 
     public Configuracion(Tablero tablero, Grafica grafica) {
@@ -60,6 +70,7 @@ public class Configuracion extends JPanel{
         //me guardo las referencias
         this.tablero = tablero;
         this.grafica = grafica;
+        this.resOptimos = new ArrayList<>();
 
         //layout del panel
         setLayout(new GridBagLayout());
@@ -227,6 +238,14 @@ public class Configuracion extends JPanel{
         add(elitismo, gbc);
         y++;
 
+        this.elitismo.addChangeListener(e -> {
+            if ((int)elitismo.getValue() == 0 || !this.memetico.isSelected()){
+                this.memeticoElite.setEnabled(false);
+                this.porcentajeMemetico.setEnabled(false);
+                this.memeticoElite.setSelected(false);
+            }
+        });
+
         //Memetico
         gbc.gridx = 0;
         gbc.gridy = y;
@@ -235,6 +254,38 @@ public class Configuracion extends JPanel{
         gbc.gridx = 1;
         this.memetico = new JCheckBox();
         add(memetico, gbc);
+        y++;
+
+        this.memetico.addChangeListener(e -> {
+            if ((int)this.elitismo.getValue() != 0) {
+                this.memeticoElite.setEnabled(memetico.isSelected());
+                this.porcentajeMemetico.setEnabled(memetico.isSelected());
+                if (!memetico.isSelected()) {
+                    this.memeticoElite.setSelected(false);
+                }
+            }
+        });
+
+        //Memetico elite
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        add(new JLabel("Memético Élite:"), gbc);
+
+        gbc.gridx = 1;
+        this.memeticoElite = new JCheckBox();
+        this.memeticoElite.setEnabled(false);
+        add(memeticoElite, gbc);
+        y++;
+
+        //Porcentaje memetico
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        add(new JLabel("Memetico (%):"), gbc);
+
+        gbc.gridx = 1;
+        this.porcentajeMemetico = new JSpinner(new SpinnerNumberModel(10, 0, 100, 1));
+        this.porcentajeMemetico.setEnabled(false);
+        add(porcentajeMemetico, gbc);
         y++;
 
         // Boton de ejecutar
@@ -260,7 +311,35 @@ public class Configuracion extends JPanel{
         this.cancelar = new JButton("Cancelar");
         add(cancelar, gbc);
         this.cancelar.setVisible(false);
+        y += 2;
 
+        //Optimos de pareto
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        this.labelOptimos = new JLabel("Optimos de pareto:");
+        add(labelOptimos, gbc);
+        this.labelOptimos.setVisible(false);
+
+        gbc.gridx = 1;
+        this.optimos = new JComboBox<>();
+        add(optimos, gbc);
+        this.optimos.setVisible(false);
+        y++;
+
+        this.optimos.addActionListener(e -> {
+            int i = this.optimos.getSelectedIndex();
+            ResEvaluacion resAux = this.resOptimos.get(i);
+            tablero.setMejor(
+                    resAux.getFitness(),
+                    resAux.getEnergia(),
+                    resAux.getTiemposDrones(),
+                    resAux.getEnergiaDrones(),
+                    resAux.getCaminos(),
+                    resAux.getCromosoma().getGenes()
+            );
+        });
+
+        //genera el tablero al terminar
         generarTablero();
     }
 
@@ -275,6 +354,11 @@ public class Configuracion extends JPanel{
 
         int[][] camaras = scene.getPosCamaras();
         tablero.setTablero(Mapas.getMapa(seleccionado), camaras, 0, null);
+        grafica.setGeneraciones(10);
+
+        this.resOptimos = new ArrayList<>();
+        this.labelOptimos.setVisible(false);
+        this.optimos.setVisible(false);
     }
 
     private void iniciarSimulacion() {
@@ -333,21 +417,37 @@ public class Configuracion extends JPanel{
             //desactiva los componentes
             estadoComponentes(false);
             this.grafica.setGeneraciones(datos.generaciones);
+            this.resOptimos = new ArrayList<>();
 
-            new Simulator(
+            Simulator simulator = new Simulator(
                     datos.generaciones,
                     datos.poblacion,
                     datos.porcentajeCruces,
                     datos.porcentajeMutaciones,
-                    (int) datos.porcentajeElitismo,
+                    datos.porcentajeElitismo,
                     datos.seleccion,
                     datos.cruce,
                     datos.mutacion,
                     supplier,
                     datos.memetico,
+                    datos.memeticoElite,
+                    datos.porcentajeMemetico,
                     tablero,
                     grafica
             );
+
+            List<ResEvaluacion> datosOptimos = simulator.getOptimos();
+            if (datosOptimos != null) {
+                String[] nombresOptimos =  new String[datosOptimos.size()];
+                for (int i = 0; i < datosOptimos.size(); i++) {
+                    nombresOptimos[i] = "Optimo T: " + String.format("%-8.2f", datosOptimos.get(i).getFitness())
+                            + " E:  " + String.format("%.2f", datosOptimos.get(i).getEnergia());
+                    this.resOptimos.add(datosOptimos.get(i));
+                }
+                this.optimos.setModel(new DefaultComboBoxModel<>(nombresOptimos));
+                this.optimos.setVisible(true);
+                this.labelOptimos.setVisible(true);
+            }
 
             //los vuelve a activar
             estadoComponentes(true);
@@ -468,9 +568,14 @@ public class Configuracion extends JPanel{
         }
 
         //porcentaje de elitismo
-        double elitismoValue = ((int) elitismo.getValue());
+        double elitismoValue = ((int) elitismo.getValue()) / 100.0;
 
         boolean memetico = this.memetico.isSelected();
+
+        boolean memeticoElite = this.memeticoElite.isSelected();
+
+        //porcentaje de elitismo
+        double porcentajeMemetico = ((int) this.porcentajeMemetico.getValue()) / 100.0;
 
         return new Datos(
                 mapaValue,
@@ -485,7 +590,9 @@ public class Configuracion extends JPanel{
                 cruceValue,
                 mutacionValue,
                 elitismoValue,
-                memetico
+                memetico,
+                memeticoElite,
+                porcentajeMemetico
         );
     }
 }
