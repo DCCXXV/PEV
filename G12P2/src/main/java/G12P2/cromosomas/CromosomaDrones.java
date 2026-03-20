@@ -35,6 +35,7 @@ public class CromosomaDrones implements Cromosoma {
         this.D = other.getNumDrones();
         this.C = other.getNumCamaras();
         this.scene = other.getScene();
+        this.multiObjetivo = other.multiObjetivo;
     }
 
     // tamaño = C + (D-1).
