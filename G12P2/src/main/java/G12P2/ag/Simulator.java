@@ -8,7 +8,6 @@ import G12P2.cromosomas.CromosomaDrones;
 import G12P2.evaluacion.ResEvaluacion;
 import G12P2.ui.Grafica;
 import G12P2.ui.Tablero;
-
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -103,17 +102,18 @@ public class Simulator {
             }
         }
 
-        while (this.generacionActual < this.maxGeneraciones && !Thread.currentThread().isInterrupted()) {
+        while (
+            this.generacionActual < this.maxGeneraciones &&
+            !Thread.currentThread().isInterrupted()
+        ) {
             generaElite();
             poblacion = seleccion.seleccionar(poblacion, fitness);
             cruce(probCruce);
             mutacion(probMutacion);
             introducirElite();
             if (memetico && generacionesSinMejora < STAGNATION_LIMIT) {
-                if (memeticoElite)
-                    busquedaSobreElite();
-                else
-                    busuedaSobrePoblacion();
+                if (memeticoElite) busquedaSobreElite();
+                else busuedaSobrePoblacion();
             }
             evaluarPoblacion();
 
@@ -140,24 +140,36 @@ public class Simulator {
             } else {
                 generacionesSinMejora++;
                 // reactivar periódicamente por si el AG logra escapar del óptimo local
-                if (generacionesSinMejora >= STAGNATION_LIMIT * 2)
-                    generacionesSinMejora = 0;
+                if (
+                    generacionesSinMejora >= STAGNATION_LIMIT * 2
+                ) generacionesSinMejora = 0;
             }
 
             //SE MANDA EL RESULTADO A LA GRAFICA
             double media = suma / tamPoblacion;
-            grafica.actualizarGrafica(generacionActual, mejorGen, mejorFitnessAbsoluto, media);
+            grafica.actualizarGrafica(
+                generacionActual,
+                mejorGen,
+                mejorFitnessAbsoluto,
+                media
+            );
 
             //SE MANDA EL RESULTADO AL TABLERO
             tablero.setMejor(
-                    mejorEvaluacion.getFitness(),
-                    mejorEvaluacion.getEnergia(),
-                    mejorEvaluacion.getTiemposDrones(),
-                    mejorEvaluacion.getEnergiaDrones(),
-                    mejorEvaluacion.getCaminos(),
-                    mejorEvaluacion.getCromosoma().getGenes()
+                mejorEvaluacion.getFitness(),
+                mejorEvaluacion.getEnergia(),
+                mejorEvaluacion.getTiemposDrones(),
+                mejorEvaluacion.getEnergiaDrones(),
+                mejorEvaluacion.getCaminos(),
+                mejorEvaluacion.getCromosoma().getGenes()
             );
-            System.out.println(generacionActual + " | " + maxGeneraciones + " | " + mejorFitnessAbsoluto);
+            System.out.println(
+                generacionActual +
+                    " | " +
+                    maxGeneraciones +
+                    " | " +
+                    mejorFitnessAbsoluto
+            );
 
             generacionActual++;
         }
@@ -166,10 +178,9 @@ public class Simulator {
     }
 
     private void comprobarOptimosPareto(ResEvaluacion solucionPareto) {
-
         double desplazamiento = solucionPareto.getFitness();
         double energia = solucionPareto.getEnergia();
-        double[] nuevoSol = {desplazamiento, energia};
+        double[] nuevoSol = { desplazamiento, energia };
 
         // Comprobar si el nuevo punto esta dominado por alguno existente
         for (double[] optimo : this.optimosPareto) {
@@ -241,14 +252,14 @@ public class Simulator {
         }
         Arrays.sort(paresFitness, (a, b) -> Double.compare(a[1], b[1]));
 
-        elite = new Cromosoma[(int)(elitismo * tamPoblacion)];
-        fitnessElite = new double[(int)(elitismo * tamPoblacion)];
-        idxElite = new int[(int)(elitismo * tamPoblacion)];
-        for (int i = 0; i < (int)(elitismo * tamPoblacion); i++) {
+        elite = new Cromosoma[(int) (elitismo * tamPoblacion)];
+        fitnessElite = new double[(int) (elitismo * tamPoblacion)];
+        idxElite = new int[(int) (elitismo * tamPoblacion)];
+        for (int i = 0; i < (int) (elitismo * tamPoblacion); i++) {
             double idx = paresFitness[i][0];
-            elite[i] = poblacion[(int)idx].copia();
-            fitnessElite[i] = fitness[(int)idx];
-            idxElite[i] = (int)idx;
+            elite[i] = poblacion[(int) idx].copia();
+            fitnessElite[i] = fitness[(int) idx];
+            idxElite[i] = (int) idx;
         }
     }
 
@@ -260,83 +271,79 @@ public class Simulator {
         }
         Arrays.sort(paresFitness, (a, b) -> Double.compare(b[1], a[1]));
 
-        for (int i = 0; i < (int)(elitismo * tamPoblacion); i++) {
+        for (int i = 0; i < (int) (elitismo * tamPoblacion); i++) {
             double idx = paresFitness[i][0];
-            poblacion[(int)idx] = elite[i];
-            fitness[(int)idx] = fitnessElite[i];
+            poblacion[(int) idx] = elite[i];
+            fitness[(int) idx] = fitnessElite[i];
         }
     }
 
     private void busuedaSobrePoblacion() {
-        IntStream.range(0, poblacion.length).parallel().forEach(k -> {
-            if (Math.random() >= this.porcentajeMemetico) return;
-            if (!(poblacion[k] instanceof CromosomaDrones)) return;
-            aplicarBusquedaLocal(k);
-        });
+        IntStream.range(0, poblacion.length)
+            .parallel()
+            .forEach(k -> {
+                if (Math.random() >= this.porcentajeMemetico) return;
+                if (!(poblacion[k] instanceof CromosomaDrones)) return;
+                aplicarBusquedaLocal(k);
+            });
     }
 
     private void busquedaSobreElite() {
-        IntStream.range(0, idxElite.length).parallel().forEach(k -> {
-            if (Math.random() >= this.porcentajeMemetico) return;
-            if (!(poblacion[idxElite[k]] instanceof CromosomaDrones)) return;
-            aplicarBusquedaLocal(idxElite[k]);
-        });
+        IntStream.range(0, idxElite.length)
+            .parallel()
+            .forEach(k -> {
+                if (Math.random() >= this.porcentajeMemetico) return;
+                if (
+                    !(poblacion[idxElite[k]] instanceof CromosomaDrones)
+                ) return;
+                aplicarBusquedaLocal(idxElite[k]);
+            });
     }
 
     /**
-     * aplica búsqueda local 2-Opt al 10% de la población
+     * aplica búsqueda local 2-Opt;
      *
-     * por cada individuo seleccionado, prueba todas las inversiones posibles
-     * de subrutas y como nos quedamos con la mejor se "desenredan" las rutas
+     * prueba todas las inversiones posibles de subtramos y se queda con las que mejoran el fitness.
+     * Usa inversión inplace + reversión para evitar clonar el cromosoma en cada iteración.
+     * como el A* en EvaluacionDrones se cachea hace que cada evaluar() sea O(1) para rutas ya vistas.
      */
     private void aplicarBusquedaLocal(int idx) {
         CromosomaDrones ind = (CromosomaDrones) poblacion[idx];
+        int[] genes = ind.getGenes();
         double fitActual = fitness[idx];
-        int[] genesActuales = ind.getGenes();
 
-        // probar todas las inversiones posibles de tramos (i, j)
-        for (int i = 0; i < genesActuales.length - 1; i++) {
-            for (int j = i + 2; j < genesActuales.length; j++) {
-                // invertir el subtramo entre i+1 y j
-                int[] nuevaRuta = invertirSubRuta(genesActuales, i + 1, j);
-
-                // crear un clon con esa nueva ruta para evaluarla
-                CromosomaDrones clon = (CromosomaDrones) ind.copia();
-                clon.setGenes(nuevaRuta);
-
-                // si "desenredar" la ruta mejora el fitness, nos lo quedamos
-                double nuevaFit = clon.evaluar().getFitness();
+        for (int i = 0; i < genes.length - 1; i++) {
+            for (int j = i + 2; j < genes.length; j++) {
+                invertirEnLugar(genes, i + 1, j);
+                double nuevaFit = ind.evaluar().getFitness();
                 if (nuevaFit < fitActual) {
-                    poblacion[idx] = clon;
-                    fitness[idx] = nuevaFit;
-                    ind = clon;
-                    genesActuales = nuevaRuta;
                     fitActual = nuevaFit;
+                    fitness[idx] = nuevaFit;
+                } else {
+                    invertirEnLugar(genes, i + 1, j); // revertir
                 }
             }
         }
     }
 
-    // devuelve una copia de genes con el tramo [desde, hasta] invertido.
-    private int[] invertirSubRuta(int[] genes, int desde, int hasta) {
-        int[] nueva = genes.clone();
+    private void invertirEnLugar(int[] genes, int desde, int hasta) {
         int lo = desde,
             hi = hasta;
         while (lo < hi) {
-            int tmp = nueva[lo];
-            nueva[lo] = nueva[hi];
-            nueva[hi] = tmp;
+            int tmp = genes[lo];
+            genes[lo] = genes[hi];
+            genes[hi] = tmp;
             lo++;
             hi--;
         }
-        return nueva;
     }
 
     public List<ResEvaluacion> getOptimos() {
-        if (!this.terminoEjecucion)
-            return null;
+        if (!this.terminoEjecucion) return null;
 
-        this.solucionesPareto.sort(Comparator.comparingDouble(a -> a.getFitness()));
+        this.solucionesPareto.sort(
+            Comparator.comparingDouble(a -> a.getFitness())
+        );
         return this.solucionesPareto;
     }
 }
