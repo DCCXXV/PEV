@@ -12,6 +12,7 @@
     <modules>
         <module>G12P1</module>
         <module>G12P2</module>
+        <module>G12P3</module>
     </modules>
 
 </project>
