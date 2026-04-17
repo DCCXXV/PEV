@@ -8,4 +8,5 @@ public interface NodoAst {
     NodoAst clonar();
     int contarNodos();
     List<NodoAst> obtenerTodosNodos();
+    boolean isConditional();
 }

@@ -16,7 +16,7 @@ public class NodoBloque implements NodoAst {
         }
     }
 
-    public void añadirHijo(NodoAst hijo) {
+    public void setHijo(NodoAst hijo) {
         hijos.add(hijo);
     }
 
@@ -28,7 +28,7 @@ public class NodoBloque implements NodoAst {
     public NodoAst clonar() {
         NodoBloque copia = new NodoBloque();
         for (NodoAst hijo : hijos)
-            copia.añadirHijo(hijo.clonar());
+            copia.setHijo(hijo.clonar());
         return copia;
     }
 
@@ -47,6 +47,11 @@ public class NodoBloque implements NodoAst {
         for (NodoAst hijo : hijos)
             lista.addAll(hijo.obtenerTodosNodos());
         return lista;
+    }
+
+    @Override
+    public boolean isConditional() {
+        return true;
     }
 
     @Override

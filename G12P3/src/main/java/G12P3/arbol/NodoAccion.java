@@ -41,6 +41,11 @@ public class NodoAccion implements NodoAst {
         return lista;
     }
 
+    @Override
+    public boolean isConditional() {
+        return false;
+    }
+
     public TipoAccion getTipoAccion() {
         return tipoAccion;
     }

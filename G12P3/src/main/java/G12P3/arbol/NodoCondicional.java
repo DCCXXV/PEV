@@ -54,6 +54,11 @@ public class NodoCondicional implements NodoAst {
         return lista;
     }
 
+    @Override
+    public boolean isConditional() {
+        return true;
+    }
+
     public void setHijoTrue(NodoAst hijoTrue) {
         this.hijoTrue = hijoTrue;
     }

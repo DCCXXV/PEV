@@ -98,10 +98,10 @@ public class GeneradorArbol {
         NodoBloque bloque = new NodoBloque();
         int numHijos = rnd.nextInt(2) + 2; // 2 o 3 hijos
         for (int i = 0; i < numHijos; i++) {
-            if (full) bloque.añadirHijo(
+            if (full) bloque.setHijo(
                 crearFull(profActual + 1, profMax, rnd)
             );
-            else bloque.añadirHijo(crearGrow(profActual + 1, profMax, rnd));
+            else bloque.setHijo(crearGrow(profActual + 1, profMax, rnd));
         }
         return bloque;
     }
