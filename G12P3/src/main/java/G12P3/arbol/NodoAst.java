@@ -9,4 +9,6 @@ public interface NodoAst {
     int contarNodos();
     List<NodoAst> obtenerTodosNodos();
     boolean isConditional();
+    int getProfundidad();
+    void setProfundidad(int profundidad);
 }

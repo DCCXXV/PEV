@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 
 public class MutacionSubarbol implements Mutacion {
 
+    private record Hueco(Consumer<NodoAst> setter, int prof) {}
+
     private final Random rnd;
     private final int profMax;
 
@@ -22,35 +24,31 @@ public class MutacionSubarbol implements Mutacion {
 
     @Override
     public void mutar(Cromosoma cromosoma) {
-        // recolecta "huecos", cada uno es un setter que reemplaza un nodo del arbol
-        List<Consumer<NodoAst>> huecos = new ArrayList<>();
+        List<Hueco> huecos = new ArrayList<>();
 
-        // hueco raiz
-        huecos.add(nuevo -> cromosoma.arbol = nuevo);
+        // hueco raiz: profundidad 0
+        huecos.add(new Hueco(nuevo -> cromosoma.arbol = nuevo, 0));
 
         recolectarHuecos(cromosoma.arbol, huecos);
 
-        Consumer<NodoAst> hueco = huecos.get(rnd.nextInt(huecos.size()));
-        NodoAst nuevoSubarbol = GeneradorArbol.rampedHalfAndHalf(profMax, rnd);
-        hueco.accept(nuevoSubarbol);
+        Hueco hueco = huecos.get(rnd.nextInt(huecos.size()));
+        NodoAst nuevoSubarbol = GeneradorArbol.crearGrow(hueco.prof(), profMax, rnd);
+        hueco.setter().accept(nuevoSubarbol);
     }
 
-    private void recolectarHuecos(
-        NodoAst nodo,
-        List<Consumer<NodoAst>> huecos
-    ) {
+    private void recolectarHuecos(NodoAst nodo, List<Hueco> huecos) {
         if (nodo instanceof NodoCondicional cond) {
-            huecos.add(cond::setHijoTrue);
+            huecos.add(new Hueco(cond::setHijoTrue, cond.getHijoTrue().getProfundidad()));
             recolectarHuecos(cond.getHijoTrue(), huecos);
             if (cond.getHijoFalse() != null) {
-                huecos.add(cond::setHijoFalse);
+                huecos.add(new Hueco(cond::setHijoFalse, cond.getHijoFalse().getProfundidad()));
                 recolectarHuecos(cond.getHijoFalse(), huecos);
             }
         } else if (nodo instanceof NodoBloque bloque) {
             List<NodoAst> hijos = bloque.getHijos();
             for (int i = 0; i < hijos.size(); i++) {
                 final int idx = i;
-                huecos.add(nuevo -> hijos.set(idx, nuevo));
+                huecos.add(new Hueco(nuevo -> hijos.set(idx, nuevo), hijos.get(i).getProfundidad()));
                 recolectarHuecos(hijos.get(i), huecos);
             }
         }

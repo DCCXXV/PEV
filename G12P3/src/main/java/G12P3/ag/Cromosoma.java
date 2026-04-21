@@ -2,6 +2,8 @@ package G12P3.ag;
 
 import G12P3.arbol.GeneradorArbol;
 import G12P3.arbol.NodoAst;
+import G12P3.evaluacion.Contexto;
+
 import java.util.List;
 import java.util.Random;
 
@@ -11,10 +13,6 @@ public class Cromosoma {
 
     public Cromosoma(NodoAst arbol) {
         this.arbol = arbol;
-    }
-
-    public static Cromosoma aleatorio(int profMax, Random rnd) {
-        return new Cromosoma(GeneradorArbol.rampedHalfAndHalf(profMax, rnd));
     }
 
     public NodoAst getNodoAleatorio(Random rnd) {

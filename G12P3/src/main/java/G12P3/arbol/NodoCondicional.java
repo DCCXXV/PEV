@@ -13,6 +13,7 @@ public class NodoCondicional implements NodoAst {
     private int umbral; // 10, 50 o 100
     private NodoAst hijoTrue; // rama IF
     private NodoAst hijoFalse; // rama ELSE
+    private int profundidad;
 
     public NodoCondicional(TipoSensor sensor, Operador operador, int umbral) {
         this.sensor = sensor;
@@ -22,7 +23,7 @@ public class NodoCondicional implements NodoAst {
 
     @Override
     public void ejecutar(Contexto ctx) {
-        if (ctx.accionTomada || !ctx.vivo) return;
+        if (!ctx.vivo || ctx.ticks >= ctx.MAX_TICKS) return;
 
         double valorSensor = ctx.leerSensor(sensor);
         if (operador.evaluar(valorSensor, umbral)) hijoTrue.ejecutar(ctx);
@@ -30,8 +31,15 @@ public class NodoCondicional implements NodoAst {
     }
 
     @Override
+    public int getProfundidad() { return profundidad; }
+
+    @Override
+    public void setProfundidad(int profundidad) { this.profundidad = profundidad; }
+
+    @Override
     public NodoAst clonar() {
         NodoCondicional copia = new NodoCondicional(sensor, operador, umbral);
+        copia.profundidad = this.profundidad;
         copia.hijoTrue = this.hijoTrue.clonar();
         if (this.hijoFalse != null) copia.hijoFalse = this.hijoFalse.clonar();
         return copia;

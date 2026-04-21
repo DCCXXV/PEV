@@ -7,11 +7,12 @@ import java.util.List;
 
 public class NodoBloque implements NodoAst {
     private List<NodoAst> hijos = new ArrayList<>();
+    private int profundidad;
 
     @Override
     public void ejecutar(Contexto ctx) {
         for (NodoAst hijo : hijos) {
-            if (ctx.accionTomada || !ctx.vivo) return;
+            if (!ctx.vivo || ctx.ticks >= ctx.MAX_TICKS) return;
             hijo.ejecutar(ctx);
         }
     }
@@ -25,8 +26,15 @@ public class NodoBloque implements NodoAst {
     }
 
     @Override
+    public int getProfundidad() { return profundidad; }
+
+    @Override
+    public void setProfundidad(int profundidad) { this.profundidad = profundidad; }
+
+    @Override
     public NodoAst clonar() {
         NodoBloque copia = new NodoBloque();
+        copia.profundidad = this.profundidad;
         for (NodoAst hijo : hijos)
             copia.setHijo(hijo.clonar());
         return copia;

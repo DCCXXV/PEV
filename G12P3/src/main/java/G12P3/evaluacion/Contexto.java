@@ -21,7 +21,7 @@ public class Contexto {
     public int colisiones;
     public int girosConsecutivos;
 
-    private static final int MAX_TICKS = 150;
+    public final int MAX_TICKS = 150;
     private static final int ENERGIA_INICIAL = 100;
 
     // deltas para cada direccion: Norte, Este, Sur, Oeste
@@ -63,9 +63,6 @@ public class Contexto {
             ) recompensaVisual++;
 
             arbol.ejecutar(this);
-
-            // si el arbol no produjo ninguna accion, el rover no hace nada (tick perdido)
-            ticks++;
         }
 
         ResultadoSimulacion res = new ResultadoSimulacion();
