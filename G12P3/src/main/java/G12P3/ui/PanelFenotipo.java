@@ -36,9 +36,10 @@ public class PanelFenotipo extends JPanel {
         SwingUtilities.invokeLater(() -> {
             resumen.setText(
                 String.format(
-                    "Fitness: %.2f   |   Fitness base: %.2f   |   Nodos AST: %d",
+                    "Fitness: %.2f   |   Fitness base: %.2f   |   Profundidad: %d   |   Nodos: %d",
                     c.fitness,
                     c.fitnessBase,
+                    c.profundidadMax,
                     c.nodos
                 )
             );

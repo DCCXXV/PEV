@@ -49,6 +49,13 @@ public class NodoBloque implements NodoAst {
     }
 
     @Override
+    public int calcularProfundidadMaxima() {
+        int d = 0;
+        for (NodoAst hijo : hijos) d = Math.max(d, hijo.calcularProfundidadMaxima());
+        return 1 + d;
+    }
+
+    @Override
     public List<NodoAst> obtenerTodosNodos() {
         List<NodoAst> lista = new ArrayList<>();
         lista.add(this);

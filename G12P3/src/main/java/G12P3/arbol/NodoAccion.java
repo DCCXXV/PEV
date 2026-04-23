@@ -46,6 +46,11 @@ public class NodoAccion implements NodoAst {
     }
 
     @Override
+    public int calcularProfundidadMaxima() {
+        return 1;
+    }
+
+    @Override
     public List<NodoAst> obtenerTodosNodos() {
         List<NodoAst> lista = new ArrayList<>();
         lista.add(this);

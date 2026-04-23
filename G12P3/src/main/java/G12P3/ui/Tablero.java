@@ -95,12 +95,23 @@ public class Tablero extends JPanel {
                     g2.fillRect(x, y, tamCelda, tamCelda);
                 }
 
-                // muestra cientifica
-                if (celda == 2) {
+                // muestra cientifica: recogida (transparente) si habia muestra en el
+                // mapa base y el rover la visito; si no, muestra normal
+                boolean recogida = visitado != null
+                    && visitado[row][col]
+                    && mapaBase[row][col] == 2
+                    && celda != 2;
+                if (celda == 2 || recogida) {
                     int d = tamCelda - 10;
-                    g2.setColor(new Color(255, 220, 40));
-                    g2.fillOval(x + 5, y + 5, d, d);
-                    g2.setColor(new Color(180, 120, 0));
+                    if (recogida) {
+                        g2.setColor(new Color(255, 220, 40, 70));
+                        g2.fillOval(x + 5, y + 5, d, d);
+                        g2.setColor(new Color(180, 120, 0, 120));
+                    } else {
+                        g2.setColor(new Color(255, 220, 40));
+                        g2.fillOval(x + 5, y + 5, d, d);
+                        g2.setColor(new Color(180, 120, 0));
+                    }
                     g2.setStroke(new BasicStroke(1));
                     g2.drawOval(x + 5, y + 5, d, d);
                 }
@@ -167,7 +178,7 @@ public class Tablero extends JPanel {
         );
         textY += 18;
         g2.drawString(
-            String.format("Tamaño AST: %d nodos", mejor.nodos),
+            String.format("Profundidad: %d  |  Nodos: %d", mejor.profundidadMax, mejor.nodos),
             textX,
             textY
         );

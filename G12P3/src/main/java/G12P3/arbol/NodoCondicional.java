@@ -54,6 +54,13 @@ public class NodoCondicional implements NodoAst {
     }
 
     @Override
+    public int calcularProfundidadMaxima() {
+        int d = hijoTrue.calcularProfundidadMaxima();
+        if (hijoFalse != null) d = Math.max(d, hijoFalse.calcularProfundidadMaxima());
+        return 1 + d;
+    }
+
+    @Override
     public List<NodoAst> obtenerTodosNodos() {
         List<NodoAst> lista = new ArrayList<>();
         lista.add(this);

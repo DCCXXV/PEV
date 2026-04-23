@@ -7,6 +7,7 @@ public interface NodoAst {
     void ejecutar(Contexto ctx);
     NodoAst clonar();
     int contarNodos();
+    int calcularProfundidadMaxima();
     List<NodoAst> obtenerTodosNodos();
     boolean isConditional();
     int getProfundidad();
