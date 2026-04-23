@@ -1,12 +1,21 @@
 package G12P3.ui;
 
 import G12P3.ag.Simulator;
+import G12P3.ag.cruce.Cruce;
+import G12P3.ag.cruce.CruceSubArboles;
 import G12P3.ag.mutacion.Mutacion;
 import G12P3.ag.mutacion.MutacionAleatoria;
 import G12P3.ag.mutacion.MutacionFuncional;
 import G12P3.ag.mutacion.MutacionHoist;
 import G12P3.ag.mutacion.MutacionSubarbol;
 import G12P3.ag.mutacion.MutacionTerminal;
+import G12P3.ag.seleccion.Estocastico;
+import G12P3.ag.seleccion.Ranking;
+import G12P3.ag.seleccion.Restos;
+import G12P3.ag.seleccion.Ruleta;
+import G12P3.ag.seleccion.Seleccion;
+import G12P3.ag.seleccion.Torneo;
+import G12P3.ag.seleccion.Truncamiento;
 import G12P3.evaluacion.MapaLunar;
 import java.awt.*;
 import java.util.Random;
@@ -22,6 +31,8 @@ public class Configuracion extends JPanel {
     private JSpinner profundidadMaxima;
     private JSpinner coefBloat;
     private JSpinner elitismo;
+    private JComboBox<String> seleccion;
+    private JComboBox<String> cruce;
     private JComboBox<String> mutacion;
     private JButton ejecutar;
     private JButton cancelar;
@@ -41,6 +52,8 @@ public class Configuracion extends JPanel {
         int profundidadMax,
         double coefBloat,
         double elitismo,
+        String seleccion,
+        String cruce,
         String mutacion
     ) {}
 
@@ -144,6 +157,37 @@ public class Configuracion extends JPanel {
         add(elitismo, gbc);
         y++;
 
+        // Tipo de seleccion
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        add(new JLabel("Tipo de selección:"), gbc);
+        gbc.gridx = 1;
+        this.seleccion = new JComboBox<>(
+            new String[] {
+                "Ruleta",
+                "Torneo",
+                "Ranking",
+                "Estocástico",
+                "Restos",
+                "Truncamiento",
+            }
+        );
+        add(seleccion, gbc);
+        y++;
+
+        // Tipo de cruce
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        add(new JLabel("Tipo de cruce:"), gbc);
+        gbc.gridx = 1;
+        this.cruce = new JComboBox<>(
+            new String[] {
+                "Sub-árboles",
+            }
+        );
+        add(cruce, gbc);
+        y++;
+
         // Tipo de mutacion
         gbc.gridx = 0;
         gbc.gridy = y;
@@ -193,6 +237,21 @@ public class Configuracion extends JPanel {
         fenotipo.limpiar();
     }
 
+    private Seleccion crearSeleccion(Random rnd, String tipo) {
+        return switch (tipo) {
+            case "Torneo" -> new Torneo(rnd);
+            case "Ranking" -> new Ranking(rnd);
+            case "Estocástico" -> new Estocastico(rnd);
+            case "Restos" -> new Restos(rnd);
+            case "Truncamiento" -> new Truncamiento();
+            default -> new Ruleta(rnd);
+        };
+    }
+
+    private Cruce crearCruce(Random rnd, String tipo) {
+        return new CruceSubArboles(rnd);
+    }
+
     private Mutacion crearMutacion(Random rnd, int profMax, String tipo) {
         return switch (tipo) {
             case "Sub-árbol" -> new MutacionSubarbol(rnd, profMax);
@@ -213,6 +272,8 @@ public class Configuracion extends JPanel {
             (int) profundidadMaxima.getValue(),
             ((Number) coefBloat.getValue()).doubleValue(),
             ((int) elitismo.getValue()) / 100.0,
+            (String) seleccion.getSelectedItem(),
+            (String) cruce.getSelectedItem(),
             (String) mutacion.getSelectedItem()
         );
     }
@@ -226,11 +287,9 @@ public class Configuracion extends JPanel {
         this.hilo = new Thread(() -> {
             try {
                 Random rnd = new Random(datos.semilla);
-                Mutacion mut = crearMutacion(
-                    rnd,
-                    datos.profundidadMax,
-                    datos.mutacion
-                );
+                Seleccion sel = crearSeleccion(rnd, datos.seleccion);
+                Cruce cru = crearCruce(rnd, datos.cruce);
+                Mutacion mut = crearMutacion(rnd, datos.profundidadMax, datos.mutacion);
 
                 new Simulator(
                     datos.generaciones,
@@ -241,6 +300,8 @@ public class Configuracion extends JPanel {
                     datos.profundidadMax,
                     datos.coefBloat,
                     datos.semilla,
+                    sel,
+                    cru,
                     mut,
                     tablero,
                     grafica,
@@ -263,6 +324,8 @@ public class Configuracion extends JPanel {
         profundidadMaxima.setEnabled(estado);
         coefBloat.setEnabled(estado);
         elitismo.setEnabled(estado);
+        seleccion.setEnabled(estado);
+        cruce.setEnabled(estado);
         mutacion.setEnabled(estado);
         ejecutar.setVisible(estado);
         cancelar.setVisible(!estado);

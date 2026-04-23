@@ -4,7 +4,6 @@ import G12P3.ag.cruce.Cruce;
 import G12P3.ag.cruce.CruceSubArboles;
 import G12P3.ag.mutacion.Mutacion;
 import G12P3.ag.seleccion.Seleccion;
-import G12P3.ag.seleccion.Torneo;
 import G12P3.arbol.GeneradorArbol;
 import G12P3.arbol.NodoAst;
 import G12P3.ui.Grafica;
@@ -42,6 +41,8 @@ public class Simulator {
         int profMaxInicial,
         double coefBloat,
         long semilla,
+        Seleccion seleccion,
+        Cruce cruce,
         Mutacion mutacion,
         Tablero tablero,
         Grafica grafica,
@@ -57,9 +58,9 @@ public class Simulator {
         this.rnd = new Random(semilla);
         // 3 mapas derivados de la semilla para evaluar el fitness
         this.semillasMapas = new long[] { semilla, semilla + 1, semilla + 2 };
+        this.seleccion = seleccion;
+        this.cruce = cruce;
         this.mutacion = mutacion;
-        this.cruce = new CruceSubArboles(rnd);
-        this.seleccion = new Torneo(rnd);
 
         iniciarPoblacion();
         evaluarPoblacion();
@@ -104,6 +105,7 @@ public class Simulator {
             grafica.actualizarGrafica(gen, mejorGen, mejorFitnessAbs, media);
             tablero.setMejor(mejorAbs);
             fenotipo.setMejor(mejorAbs);
+            // mostramos por consola el mejor de esta iteracion
             System.out.println(
                 gen +
                     " | " +
