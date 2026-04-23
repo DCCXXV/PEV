@@ -18,17 +18,23 @@ public class Cromosoma {
     public int nodos;               // numero de nodos del AST
     public int profundidadMax;      // profundidad maxima real del AST
 
-    // detalles del primer mapa (para visualizacion)
-    public int[][] mapaMuestra;
-    public boolean[][] visitadoMuestra;
-    public int posFilaFinal;
-    public int posColFinal;
-    public int direccionFinal;
-    public double energiaRestante;
-    public int muestrasRecogidas;
-    public int casillasExploradas;
-    public int pisadasArena;
-    public int colisiones;
+    // detalles de cada mapa evaluado (para poder visualizar los 3 recorridos)
+    public DatosMapa[] datosPorMapa;
+
+    public static class DatosMapa {
+        public int[][] mapaInicial;      // mapa antes de la simulacion
+        public int[][] mapaFinal;        // mapa tras la simulacion (muestras recogidas quitadas)
+        public boolean[][] visitado;
+        public int posFila;
+        public int posCol;
+        public int direccion;
+        public double energiaRestante;
+        public int muestrasRecogidas;
+        public int casillasExploradas;
+        public int pisadasArena;
+        public int colisiones;
+        public double fitnessBase;       // fitness base especifico de este mapa
+    }
 
     public Cromosoma(NodoAst arbol) {
         this.arbol = arbol;
@@ -45,6 +51,7 @@ public class Cromosoma {
         copia.fitnessBase = this.fitnessBase;
         copia.nodos = this.nodos;
         copia.profundidadMax = this.profundidadMax;
+        copia.datosPorMapa = this.datosPorMapa;
         return copia;
     }
 
@@ -53,6 +60,7 @@ public class Cromosoma {
     // unico escenario. devuelve el fitness final ya con la penalizacion por bloat.
     public double evaluar(long[] semillas, double coefBloat) {
         double suma = 0;
+        this.datosPorMapa = new DatosMapa[semillas.length];
         for (int i = 0; i < semillas.length; i++) {
             // genera un mapa lunar distinto para cada semilla
             int[][] mapa = MapaLunar.generar(semillas[i]);
@@ -61,21 +69,24 @@ public class Cromosoma {
             // ejecuta el arbol como programa de control del rover en ese mapa
             ResultadoSimulacion res = ctx.simular(arbol);
             // acumula la puntuacion obtenida (muestras, exploracion, penalizaciones...)
-            suma += res.calcularFitnessBase();
+            double fb = res.calcularFitnessBase();
+            suma += fb;
 
-            // solo del primer mapa guardamos el estado para mostrarlo en la UI
-            if (i == 0) {
-                this.mapaMuestra = ctx.mapa;
-                this.visitadoMuestra = ctx.getVisitado();
-                this.posFilaFinal = ctx.y;
-                this.posColFinal = ctx.x;
-                this.direccionFinal = ctx.direccion;
-                this.energiaRestante = ctx.energia;
-                this.muestrasRecogidas = ctx.muestrasRecogidas;
-                this.casillasExploradas = ctx.casillasExploradas;
-                this.pisadasArena = ctx.pisadasArena;
-                this.colisiones = ctx.colisiones;
-            }
+            // guardamos el estado de cada mapa para la visualizacion
+            DatosMapa dm = new DatosMapa();
+            dm.mapaInicial = mapa;
+            dm.mapaFinal = ctx.mapa;
+            dm.visitado = ctx.getVisitado();
+            dm.posFila = ctx.y;
+            dm.posCol = ctx.x;
+            dm.direccion = ctx.direccion;
+            dm.energiaRestante = ctx.energia;
+            dm.muestrasRecogidas = ctx.muestrasRecogidas;
+            dm.casillasExploradas = ctx.casillasExploradas;
+            dm.pisadasArena = ctx.pisadasArena;
+            dm.colisiones = ctx.colisiones;
+            dm.fitnessBase = fb;
+            this.datosPorMapa[i] = dm;
         }
         // fitness base = media del rendimiento en los N mapas
         this.fitnessBase = suma / semillas.length;

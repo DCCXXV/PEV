@@ -10,6 +10,7 @@ public class Tablero extends JPanel {
 
     private int[][] mapaBase;
     private Cromosoma mejor;
+    private int indiceMapa = 0;
 
     private Graphics2D g2;
     private int offsetX;
@@ -20,11 +21,17 @@ public class Tablero extends JPanel {
     public void setMapaBase(int[][] mapa) {
         this.mapaBase = mapa;
         this.mejor = null;
+        this.indiceMapa = 0;
         repaint();
     }
 
     public void setMejor(Cromosoma mejor) {
         this.mejor = mejor;
+        SwingUtilities.invokeLater(this::repaint);
+    }
+
+    public void setIndiceMapa(int i) {
+        this.indiceMapa = i;
         SwingUtilities.invokeLater(this::repaint);
     }
 
@@ -39,19 +46,28 @@ public class Tablero extends JPanel {
             RenderingHints.VALUE_ANTIALIAS_ON
         );
 
-        int anchoTablero = mapaBase[0].length * tamCelda;
-        int altoTablero = mapaBase.length * tamCelda;
+        // datos del mapa seleccionado (si hay mejor ya evaluado)
+        Cromosoma.DatosMapa dm = null;
+        if (mejor != null && mejor.datosPorMapa != null
+            && indiceMapa < mejor.datosPorMapa.length
+            && mejor.datosPorMapa[indiceMapa] != null) {
+            dm = mejor.datosPorMapa[indiceMapa];
+        }
+
+        // mapa original: el del individuo evaluado si existe, si no, el preview
+        int[][] mapaOriginal = (dm != null) ? dm.mapaInicial : mapaBase;
+
+        int anchoTablero = mapaOriginal[0].length * tamCelda;
+        int altoTablero = mapaOriginal.length * tamCelda;
         offsetX = Math.max(10, (getWidth() - anchoTablero) / 2);
         offsetY = 10;
 
-        // mapa para pintar: si ya hay un mejor, usamos su estado final (muestras recogidas quitadas)
-        int[][] mapa = (mejor != null && mejor.mapaMuestra != null)
-            ? mejor.mapaMuestra
-            : mapaBase;
-        boolean[][] visitado = (mejor != null) ? mejor.visitadoMuestra : null;
+        // mapa para pintar: si hay mejor, usamos su estado final (muestras recogidas quitadas)
+        int[][] mapa = (dm != null) ? dm.mapaFinal : mapaOriginal;
+        boolean[][] visitado = (dm != null) ? dm.visitado : null;
 
-        for (int row = 0; row < mapaBase.length; row++) {
-            for (int col = 0; col < mapaBase[0].length; col++) {
+        for (int row = 0; row < mapaOriginal.length; row++) {
+            for (int col = 0; col < mapaOriginal[0].length; col++) {
                 int x = offsetX + col * tamCelda;
                 int y = offsetY + row * tamCelda;
                 int celda = mapa[row][col];
@@ -99,7 +115,7 @@ public class Tablero extends JPanel {
                 // mapa base y el rover la visito; si no, muestra normal
                 boolean recogida = visitado != null
                     && visitado[row][col]
-                    && mapaBase[row][col] == 2
+                    && mapaOriginal[row][col] == 2
                     && celda != 2;
                 if (celda == 2 || recogida) {
                     int d = tamCelda - 10;
@@ -124,13 +140,9 @@ public class Tablero extends JPanel {
         }
 
         // rover
-        if (mejor != null) {
-            pintarRover(
-                mejor.posFilaFinal,
-                mejor.posColFinal,
-                mejor.direccionFinal
-            );
-            pintarDatos(altoTablero);
+        if (dm != null) {
+            pintarRover(dm.posFila, dm.posCol, dm.direccion);
+            pintarDatos(altoTablero, dm);
         }
     }
 
@@ -156,7 +168,7 @@ public class Tablero extends JPanel {
         g2.drawLine(cx, cy, hx, hy);
     }
 
-    private void pintarDatos(int altoTablero) {
+    private void pintarDatos(int altoTablero, Cromosoma.DatosMapa dm) {
         g2.setColor(Color.BLACK);
         g2.setFont(new Font("Arial", Font.BOLD, 13));
         int textY = offsetY + altoTablero + 20;
@@ -186,35 +198,39 @@ public class Tablero extends JPanel {
 
         g2.setFont(new Font("Arial", Font.PLAIN, 12));
         g2.setColor(new Color(60, 60, 60));
-        g2.drawString("Mapa 1", textX, textY);
+        g2.drawString(
+            String.format("Mapa %d  |  fitness base: %.2f", indiceMapa + 1, dm.fitnessBase),
+            textX,
+            textY
+        );
         textY += 16;
         g2.setColor(Color.BLACK);
         g2.drawString(
-            String.format("Muestras recogidas: %d", mejor.muestrasRecogidas),
+            String.format("Muestras recogidas: %d", dm.muestrasRecogidas),
             textX,
             textY
         );
         textY += 16;
         g2.drawString(
-            String.format("Casillas exploradas: %d", mejor.casillasExploradas),
+            String.format("Casillas exploradas: %d", dm.casillasExploradas),
             textX,
             textY
         );
         textY += 16;
         g2.drawString(
-            String.format("Pisadas en arena: %d", mejor.pisadasArena),
+            String.format("Pisadas en arena: %d", dm.pisadasArena),
             textX,
             textY
         );
         textY += 16;
         g2.drawString(
-            String.format("Colisiones: %d", mejor.colisiones),
+            String.format("Colisiones: %d", dm.colisiones),
             textX,
             textY
         );
         textY += 16;
         g2.drawString(
-            String.format("Energía restante: %.1f", mejor.energiaRestante),
+            String.format("Energía restante: %.1f", dm.energiaRestante),
             textX,
             textY
         );

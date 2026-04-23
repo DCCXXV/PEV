@@ -34,6 +34,8 @@ public class Configuracion extends JPanel {
     private JComboBox<String> seleccion;
     private JComboBox<String> cruce;
     private JComboBox<String> mutacion;
+    private JLabel labelVisualizarMapa;
+    private JComboBox<String> visualizarMapa;
     private JButton ejecutar;
     private JButton cancelar;
 
@@ -205,6 +207,22 @@ public class Configuracion extends JPanel {
         add(mutacion, gbc);
         y++;
 
+        // Visualizar mapa (oculto hasta que termine la ejecucion)
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        gbc.gridwidth = 1;
+        this.labelVisualizarMapa = new JLabel("Visualizar mapa:");
+        this.labelVisualizarMapa.setVisible(false);
+        add(labelVisualizarMapa, gbc);
+        gbc.gridx = 1;
+        this.visualizarMapa = new JComboBox<>(new String[] { "Mapa 1", "Mapa 2", "Mapa 3" });
+        this.visualizarMapa.setVisible(false);
+        this.visualizarMapa.addActionListener(e ->
+            tablero.setIndiceMapa(visualizarMapa.getSelectedIndex())
+        );
+        add(visualizarMapa, gbc);
+        y++;
+
         // Ejecutar
         gbc.gridx = 0;
         gbc.gridy = y;
@@ -281,6 +299,10 @@ public class Configuracion extends JPanel {
     private void iniciarSimulacion() {
         Datos datos = recogerDatos();
         estadoComponentes(false);
+        labelVisualizarMapa.setVisible(false);
+        visualizarMapa.setVisible(false);
+        visualizarMapa.setSelectedIndex(0);
+        tablero.setIndiceMapa(0);
         grafica.setGeneraciones(datos.generaciones);
         fenotipo.limpiar();
 
@@ -308,7 +330,11 @@ public class Configuracion extends JPanel {
                     fenotipo
                 );
             } finally {
-                SwingUtilities.invokeLater(() -> estadoComponentes(true));
+                SwingUtilities.invokeLater(() -> {
+                    estadoComponentes(true);
+                    labelVisualizarMapa.setVisible(true);
+                    visualizarMapa.setVisible(true);
+                });
             }
         });
 
