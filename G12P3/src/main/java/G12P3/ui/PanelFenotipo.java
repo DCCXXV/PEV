@@ -1,12 +1,20 @@
 package G12P3.ui;
 
 import G12P3.ag.Cromosoma;
+import G12P3.arbol.NodoAccion;
+import G12P3.arbol.NodoAst;
+import G12P3.arbol.NodoBloque;
+import G12P3.arbol.NodoCondicional;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 
 public class PanelFenotipo extends JPanel {
 
-    private final JTextArea texto;
+    private final JTextArea textoCodigo;
+    private final JTree arbolVisual;
     private final JLabel resumen;
 
     public PanelFenotipo() {
@@ -22,14 +30,34 @@ public class PanelFenotipo extends JPanel {
         resumen.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
         add(resumen, BorderLayout.NORTH);
 
-        texto = new JTextArea(10, 80);
-        texto.setEditable(false);
-        texto.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        texto.setBackground(new Color(250, 250, 245));
+        textoCodigo = new JTextArea(10, 50);
+        textoCodigo.setEditable(false);
+        textoCodigo.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        textoCodigo.setBackground(new Color(250, 250, 245));
 
-        JScrollPane scroll = new JScrollPane(texto);
-        scroll.setPreferredSize(new Dimension(1000, 200));
-        add(scroll, BorderLayout.CENTER);
+        arbolVisual = new JTree(new DefaultMutableTreeNode("(vacío)"));
+        arbolVisual.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        arbolVisual.setRootVisible(true);
+
+        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+        renderer.setLeafIcon(null);
+        renderer.setClosedIcon(null);
+        renderer.setOpenIcon(null);
+        arbolVisual.setCellRenderer(renderer);
+
+        JScrollPane scrollCodigo = new JScrollPane(textoCodigo);
+        scrollCodigo.setPreferredSize(new Dimension(0, 160));
+        JScrollPane scrollArbol = new JScrollPane(arbolVisual);
+        scrollArbol.setPreferredSize(new Dimension(0, 160));
+
+        JSplitPane split = new JSplitPane(
+            JSplitPane.HORIZONTAL_SPLIT,
+            scrollCodigo,
+            scrollArbol
+        );
+        split.setResizeWeight(0.5);
+        split.setDividerLocation(0.5);
+        add(split, BorderLayout.CENTER);
     }
 
     public void setMejor(Cromosoma c) {
@@ -43,15 +71,49 @@ public class PanelFenotipo extends JPanel {
                     c.nodos
                 )
             );
-            texto.setText(c.arbol.toString());
-            texto.setCaretPosition(0);
+            textoCodigo.setText(c.arbol.toString());
+            textoCodigo.setCaretPosition(0);
+            DefaultMutableTreeNode raiz = nodoATreeNode(c.arbol);
+            arbolVisual.setModel(new DefaultTreeModel(raiz));
         });
     }
 
     public void limpiar() {
         SwingUtilities.invokeLater(() -> {
             resumen.setText(" ");
-            texto.setText("");
+            textoCodigo.setText("");
+            arbolVisual.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("(vacío)")));
         });
     }
+
+    private DefaultMutableTreeNode nodoATreeNode(NodoAst nodo) {
+        if (nodo instanceof NodoAccion) {
+            return new DefaultMutableTreeNode("accion");
+        }
+
+        if (nodo instanceof NodoCondicional cond) {
+            DefaultMutableTreeNode tn = new DefaultMutableTreeNode("condicional");
+            DefaultMutableTreeNode ifNode = new DefaultMutableTreeNode("if");
+            ifNode.add(nodoATreeNode(cond.getHijoTrue()));
+            tn.add(ifNode);
+            if (cond.getHijoFalse() != null) {
+                DefaultMutableTreeNode elseNode = new DefaultMutableTreeNode("else");
+                elseNode.add(nodoATreeNode(cond.getHijoFalse()));
+                tn.add(elseNode);
+            }
+            return tn;
+        }
+
+        if (nodo instanceof NodoBloque bloque) {
+            DefaultMutableTreeNode tn = new DefaultMutableTreeNode("bloque");
+            for (NodoAst hijo : bloque.getHijos()) {
+                tn.add(nodoATreeNode(hijo));
+            }
+            return tn;
+        }
+
+        return new DefaultMutableTreeNode("desconocido");
+    }
+
+
 }

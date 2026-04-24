@@ -151,9 +151,8 @@ public class NodoCondicional implements NodoAst {
             cond.toStringIndentado(nivel)
         );
         else if (hijo instanceof NodoBloque bloque) sb.append(
-            bloque.toString()
+            bloque.toStringIndentado(nivel)
         );
-        // ya maneja indentacion interna
         else sb
             .append("  ".repeat(nivel))
             .append(hijo.toString())

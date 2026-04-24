@@ -74,7 +74,7 @@ public class NodoBloque implements NodoAst {
         return toStringIndentado(0);
     }
 
-    private String toStringIndentado(int nivel) {
+    String toStringIndentado(int nivel) {
         StringBuilder sb = new StringBuilder();
         String indent = "  ".repeat(nivel);
         for (NodoAst hijo : hijos) {

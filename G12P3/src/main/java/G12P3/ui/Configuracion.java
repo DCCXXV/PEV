@@ -101,7 +101,7 @@ public class Configuracion extends JPanel {
         add(new JLabel("Número de generaciones:"), gbc);
         gbc.gridx = 1;
         this.generaciones = new JSpinner(
-            new SpinnerNumberModel(300, 1, 10000, 1)
+            new SpinnerNumberModel(400, 1, 10000, 1)
         );
         add(generaciones, gbc);
         y++;
@@ -112,7 +112,7 @@ public class Configuracion extends JPanel {
         add(new JLabel("Porcentaje de cruces (%):"), gbc);
         gbc.gridx = 1;
         this.porcentajeCruces = new JSpinner(
-            new SpinnerNumberModel(70, 0, 100, 1)
+            new SpinnerNumberModel(90, 0, 100, 1)
         );
         add(porcentajeCruces, gbc);
         y++;
@@ -123,7 +123,7 @@ public class Configuracion extends JPanel {
         add(new JLabel("Porcentaje de mutaciones (%):"), gbc);
         gbc.gridx = 1;
         this.porcentajeMutaciones = new JSpinner(
-            new SpinnerNumberModel(10, 0, 100, 1)
+            new SpinnerNumberModel(20, 0, 100, 1)
         );
         add(porcentajeMutaciones, gbc);
         y++;
@@ -134,7 +134,7 @@ public class Configuracion extends JPanel {
         add(new JLabel("Profundidad máxima inicial:"), gbc);
         gbc.gridx = 1;
         this.profundidadMaxima = new JSpinner(
-            new SpinnerNumberModel(5, 2, 10, 1)
+            new SpinnerNumberModel(6, 2, 10, 1)
         );
         add(profundidadMaxima, gbc);
         y++;
@@ -145,7 +145,7 @@ public class Configuracion extends JPanel {
         add(new JLabel("Coeficiente de bloating:"), gbc);
         gbc.gridx = 1;
         this.coefBloat = new JSpinner(
-            new SpinnerNumberModel(0.5, 0.0, 100.0, 0.1)
+            new SpinnerNumberModel(1.5, 0.0, 100.0, 0.1)
         );
         add(coefBloat, gbc);
         y++;
@@ -155,7 +155,7 @@ public class Configuracion extends JPanel {
         gbc.gridy = y;
         add(new JLabel("Elitismo (%):"), gbc);
         gbc.gridx = 1;
-        this.elitismo = new JSpinner(new SpinnerNumberModel(5, 0, 100, 1));
+        this.elitismo = new JSpinner(new SpinnerNumberModel(3, 0, 100, 1));
         add(elitismo, gbc);
         y++;
 
@@ -207,22 +207,6 @@ public class Configuracion extends JPanel {
         add(mutacion, gbc);
         y++;
 
-        // Visualizar mapa (oculto hasta que termine la ejecucion)
-        gbc.gridx = 0;
-        gbc.gridy = y;
-        gbc.gridwidth = 1;
-        this.labelVisualizarMapa = new JLabel("Visualizar mapa:");
-        this.labelVisualizarMapa.setVisible(false);
-        add(labelVisualizarMapa, gbc);
-        gbc.gridx = 1;
-        this.visualizarMapa = new JComboBox<>(new String[] { "Mapa 1", "Mapa 2", "Mapa 3" });
-        this.visualizarMapa.setVisible(false);
-        this.visualizarMapa.addActionListener(e ->
-            tablero.setIndiceMapa(visualizarMapa.getSelectedIndex())
-        );
-        add(visualizarMapa, gbc);
-        y++;
-
         // Ejecutar
         gbc.gridx = 0;
         gbc.gridy = y;
@@ -243,6 +227,23 @@ public class Configuracion extends JPanel {
             if (hilo != null) hilo.interrupt();
         });
         add(cancelar, gbc);
+        y++;
+
+        // Visualizar mapa (oculto hasta que termine la ejecucion)
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        this.labelVisualizarMapa = new JLabel("Visualizar mapa:");
+        this.labelVisualizarMapa.setVisible(false);
+        add(labelVisualizarMapa, gbc);
+        gbc.gridx = 1;
+        this.visualizarMapa = new JComboBox<>(new String[] { "Mapa 1", "Mapa 2", "Mapa 3" });
+        this.visualizarMapa.setVisible(false);
+        this.visualizarMapa.addActionListener(e ->
+            tablero.setIndiceMapa(visualizarMapa.getSelectedIndex())
+        );
+        add(visualizarMapa, gbc);
 
         generarTablero();
     }
