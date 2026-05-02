@@ -176,7 +176,7 @@ public class Tablero extends JPanel {
         textY += 18;
         g2.drawString(
             String.format(
-                "Fitness base (media 3 mapas): %.2f",
+                "Fitness base (media de los mapas): %.2f",
                 mejor.fitnessBase
             ),
             textX,

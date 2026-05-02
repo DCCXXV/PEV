@@ -1,14 +1,7 @@
 package G12P3.ui;
 
-import G12P3.ag.Simulator;
 import G12P3.ag.cruce.Cruce;
-import G12P3.ag.cruce.CruceSubArboles;
 import G12P3.ag.mutacion.Mutacion;
-import G12P3.ag.mutacion.MutacionAleatoria;
-import G12P3.ag.mutacion.MutacionFuncional;
-import G12P3.ag.mutacion.MutacionHoist;
-import G12P3.ag.mutacion.MutacionSubarbol;
-import G12P3.ag.mutacion.MutacionTerminal;
 import G12P3.ag.seleccion.Estocastico;
 import G12P3.ag.seleccion.Ranking;
 import G12P3.ag.seleccion.Restos;
@@ -17,18 +10,32 @@ import G12P3.ag.seleccion.Seleccion;
 import G12P3.ag.seleccion.Torneo;
 import G12P3.ag.seleccion.Truncamiento;
 import G12P3.evaluacion.MapaLunar;
+import G12P3.ge.Gramatica;
+import G12P3.ge.SimulatorGE;
+import G12P3.ge.cruce.CruceAritmeticoGE;
+import G12P3.ge.cruce.CruceBlxAlphaGE;
+import G12P3.ge.cruce.CruceDosPuntosGE;
+import G12P3.ge.cruce.CruceMonopuntoGE;
+import G12P3.ge.cruce.CruceUniformeGE;
+import G12P3.ge.mutacion.MutacionBasicaGE;
+import G12P3.ge.mutacion.MutacionGaussianaGE;
+import G12P3.ge.mutacion.MutacionInsercionGE;
+import G12P3.ge.mutacion.MutacionIntercambioGE;
+import G12P3.ge.mutacion.MutacionInversionGE;
+import G12P3.ge.mutacion.MutacionScrambleGE;
 import java.awt.*;
 import java.util.Random;
 import javax.swing.*;
 
-public class Configuracion extends JPanel {
+public class ConfiguracionGE extends JPanel {
 
     private JSpinner semilla;
     private JSpinner poblacion;
     private JSpinner generaciones;
     private JSpinner porcentajeCruces;
     private JSpinner porcentajeMutaciones;
-    private JSpinner profundidadMaxima;
+    private JSpinner longCromosoma;
+    private JSpinner profundidadDecoder;
     private JSpinner coefBloat;
     private JSpinner elitismo;
     private JSpinner numMapas;
@@ -52,7 +59,8 @@ public class Configuracion extends JPanel {
         int generaciones,
         double probCruce,
         double probMutacion,
-        int profundidadMax,
+        int longCromosoma,
+        int profDecoder,
         double coefBloat,
         double elitismo,
         int numMapas,
@@ -61,7 +69,7 @@ public class Configuracion extends JPanel {
         String mutacion
     ) {}
 
-    public Configuracion(
+    public ConfiguracionGE(
         Tablero tablero,
         Grafica grafica,
         PanelFenotipo fenotipo
@@ -110,7 +118,7 @@ public class Configuracion extends JPanel {
         add(new JLabel("Porcentaje de cruces (%):"), gbc);
         gbc.gridx = 1;
         this.porcentajeCruces = new JSpinner(
-            new SpinnerNumberModel(90, 0, 100, 1)
+            new SpinnerNumberModel(85, 0, 100, 1)
         );
         add(porcentajeCruces, gbc);
         y++;
@@ -120,19 +128,29 @@ public class Configuracion extends JPanel {
         add(new JLabel("Porcentaje de mutaciones (%):"), gbc);
         gbc.gridx = 1;
         this.porcentajeMutaciones = new JSpinner(
-            new SpinnerNumberModel(20, 0, 100, 1)
+            new SpinnerNumberModel(25, 0, 100, 1)
         );
         add(porcentajeMutaciones, gbc);
         y++;
 
         gbc.gridx = 0;
         gbc.gridy = y;
-        add(new JLabel("Profundidad máxima inicial:"), gbc);
+        add(new JLabel("Longitud cromosoma (codones):"), gbc);
         gbc.gridx = 1;
-        this.profundidadMaxima = new JSpinner(
+        this.longCromosoma = new JSpinner(
+            new SpinnerNumberModel(80, 10, 1000, 1)
+        );
+        add(longCromosoma, gbc);
+        y++;
+
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        add(new JLabel("Profundidad máxima decoder:"), gbc);
+        gbc.gridx = 1;
+        this.profundidadDecoder = new JSpinner(
             new SpinnerNumberModel(6, 2, 10, 1)
         );
-        add(profundidadMaxima, gbc);
+        add(profundidadDecoder, gbc);
         y++;
 
         gbc.gridx = 0;
@@ -184,7 +202,11 @@ public class Configuracion extends JPanel {
         gbc.gridx = 1;
         this.cruce = new JComboBox<>(
             new String[] {
-                "Sub-árboles",
+                "Monopunto",
+                "Dos puntos",
+                "Uniforme",
+                "Aritmético",
+                "BLX-α",
             }
         );
         add(cruce, gbc);
@@ -196,11 +218,12 @@ public class Configuracion extends JPanel {
         gbc.gridx = 1;
         this.mutacion = new JComboBox<>(
             new String[] {
-                "Aleatoria",
-                "Sub-árbol",
-                "Funcional",
-                "Terminal",
-                "Hoist",
+                "Básica",
+                "Inversión",
+                "Intercambio",
+                "Inserción",
+                "Scramble",
+                "Gaussiana",
             }
         );
         add(mutacion, gbc);
@@ -217,7 +240,6 @@ public class Configuracion extends JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = y;
-        gbc.gridwidth = 2;
         this.cancelar = new JButton("Cancelar");
         this.cancelar.setVisible(false);
         this.cancelar.addActionListener(e -> {
@@ -226,7 +248,6 @@ public class Configuracion extends JPanel {
         add(cancelar, gbc);
         y++;
 
-        // oculto hasta que termine la ejecucion
         gbc.gridx = 0;
         gbc.gridy = y;
         gbc.gridwidth = 1;
@@ -235,15 +256,31 @@ public class Configuracion extends JPanel {
         this.labelVisualizarMapa.setVisible(false);
         add(labelVisualizarMapa, gbc);
         gbc.gridx = 1;
-        this.visualizarMapa = new JComboBox<>(new String[] { "Mapa 1", "Mapa 2", "Mapa 3" });
+        this.visualizarMapa = new JComboBox<>(
+            new String[] { "Mapa 1", "Mapa 2", "Mapa 3" }
+        );
         this.visualizarMapa.setVisible(false);
         this.visualizarMapa.addActionListener(e -> {
             int idx = visualizarMapa.getSelectedIndex();
             if (idx >= 0) tablero.setIndiceMapa(idx);
         });
         add(visualizarMapa, gbc);
+        y++;
 
-        generarTablero();
+        // panel con la BNF para que el usuario vea las reglas activas
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        JTextArea bnf = new JTextArea(Gramatica.BNF);
+        bnf.setEditable(false);
+        bnf.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        bnf.setBackground(new Color(248, 248, 240));
+        JScrollPane scrollBnf = new JScrollPane(bnf);
+        scrollBnf.setBorder(BorderFactory.createTitledBorder("Gramática BNF"));
+        add(scrollBnf, gbc);
     }
 
     private void generarTablero() {
@@ -266,16 +303,23 @@ public class Configuracion extends JPanel {
     }
 
     private Cruce crearCruce(Random rnd, String tipo) {
-        return new CruceSubArboles(rnd);
+        return switch (tipo) {
+            case "Dos puntos" -> new CruceDosPuntosGE(rnd);
+            case "Uniforme" -> new CruceUniformeGE(rnd);
+            case "Aritmético" -> new CruceAritmeticoGE();
+            case "BLX-α" -> new CruceBlxAlphaGE(rnd);
+            default -> new CruceMonopuntoGE(rnd);
+        };
     }
 
-    private Mutacion crearMutacion(Random rnd, int profMax, String tipo) {
+    private Mutacion crearMutacion(Random rnd, String tipo) {
         return switch (tipo) {
-            case "Sub-árbol" -> new MutacionSubarbol(rnd, profMax);
-            case "Funcional" -> new MutacionFuncional(rnd);
-            case "Terminal" -> new MutacionTerminal(rnd);
-            case "Hoist" -> new MutacionHoist(rnd);
-            default -> new MutacionAleatoria(rnd, profMax);
+            case "Inversión" -> new MutacionInversionGE(rnd);
+            case "Intercambio" -> new MutacionIntercambioGE(rnd);
+            case "Inserción" -> new MutacionInsercionGE(rnd);
+            case "Scramble" -> new MutacionScrambleGE(rnd);
+            case "Gaussiana" -> new MutacionGaussianaGE(rnd);
+            default -> new MutacionBasicaGE(rnd);
         };
     }
 
@@ -286,7 +330,8 @@ public class Configuracion extends JPanel {
             (int) generaciones.getValue(),
             ((int) porcentajeCruces.getValue()) / 100.0,
             ((int) porcentajeMutaciones.getValue()) / 100.0,
-            (int) profundidadMaxima.getValue(),
+            (int) longCromosoma.getValue(),
+            (int) profundidadDecoder.getValue(),
             ((Number) coefBloat.getValue()).doubleValue(),
             ((int) elitismo.getValue()) / 100.0,
             (int) numMapas.getValue(),
@@ -316,15 +361,16 @@ public class Configuracion extends JPanel {
                 Random rnd = new Random(datos.semilla);
                 Seleccion sel = crearSeleccion(rnd, datos.seleccion);
                 Cruce cru = crearCruce(rnd, datos.cruce);
-                Mutacion mut = crearMutacion(rnd, datos.profundidadMax, datos.mutacion);
+                Mutacion mut = crearMutacion(rnd, datos.mutacion);
 
-                new Simulator(
+                new SimulatorGE(
                     datos.generaciones,
                     datos.poblacion,
                     datos.probCruce,
                     datos.probMutacion,
                     datos.elitismo,
-                    datos.profundidadMax,
+                    datos.longCromosoma,
+                    datos.profDecoder,
                     datos.coefBloat,
                     datos.semilla,
                     datos.numMapas,
@@ -353,7 +399,8 @@ public class Configuracion extends JPanel {
         generaciones.setEnabled(estado);
         porcentajeCruces.setEnabled(estado);
         porcentajeMutaciones.setEnabled(estado);
-        profundidadMaxima.setEnabled(estado);
+        longCromosoma.setEnabled(estado);
+        profundidadDecoder.setEnabled(estado);
         coefBloat.setEnabled(estado);
         elitismo.setEnabled(estado);
         numMapas.setEnabled(estado);
@@ -362,5 +409,9 @@ public class Configuracion extends JPanel {
         mutacion.setEnabled(estado);
         ejecutar.setVisible(estado);
         cancelar.setVisible(!estado);
+    }
+
+    public void inicializarVista() {
+        generarTablero();
     }
 }

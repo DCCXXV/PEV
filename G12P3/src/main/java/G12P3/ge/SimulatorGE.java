@@ -1,11 +1,9 @@
-package G12P3.ag;
+package G12P3.ge;
 
+import G12P3.ag.Cromosoma;
 import G12P3.ag.cruce.Cruce;
-import G12P3.ag.cruce.CruceSubArboles;
 import G12P3.ag.mutacion.Mutacion;
 import G12P3.ag.seleccion.Seleccion;
-import G12P3.arbol.GeneradorArbol;
-import G12P3.arbol.NodoAst;
 import G12P3.ui.Grafica;
 import G12P3.ui.PanelFenotipo;
 import G12P3.ui.Tablero;
@@ -14,14 +12,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Simulator {
+// simulador especifico para gramaticas evolutivas: la unica diferencia con
+// el simulador de PG es la inicializacion (cromosomas lineales decodificados
+// a AST) y el cruce/mutacion sobre los codones, no sobre el arbol
+public class SimulatorGE {
 
     private final int maxGeneraciones;
     private final int tamPoblacion;
     private final double probCruce;
     private final double probMutacion;
     private final double elitismo;
-    private final int profMaxInicial;
+    private final int longCromosoma;
+    private final int profMaxDecoder;
     private final double coefBloat;
     private final long[] semillasMapas;
 
@@ -32,13 +34,14 @@ public class Simulator {
 
     private Cromosoma[] poblacion;
 
-    public Simulator(
+    public SimulatorGE(
         int maxGeneraciones,
         int tamPoblacion,
         double probCruce,
         double probMutacion,
         double elitismo,
-        int profMaxInicial,
+        int longCromosoma,
+        int profMaxDecoder,
         double coefBloat,
         long semilla,
         int numMapas,
@@ -54,10 +57,10 @@ public class Simulator {
         this.probCruce = probCruce;
         this.probMutacion = probMutacion;
         this.elitismo = elitismo;
-        this.profMaxInicial = profMaxInicial;
+        this.longCromosoma = longCromosoma;
+        this.profMaxDecoder = profMaxDecoder;
         this.coefBloat = coefBloat;
         this.rnd = new Random(semilla);
-        // N mapas derivados de la semilla (semilla, semilla+1, ..., semilla+N-1)
         this.semillasMapas = new long[numMapas];
         for (int i = 0; i < numMapas; i++) this.semillasMapas[i] = semilla + i;
         this.seleccion = seleccion;
@@ -75,8 +78,6 @@ public class Simulator {
                 mejorAbs = c.clonar();
             }
         }
-
-        // reevaluamos el mejor absoluto para rellenar sus campos de visualizacion
         mejorAbs.evaluar(semillasMapas, coefBloat);
 
         for (
@@ -108,27 +109,19 @@ public class Simulator {
             tablero.setMejor(mejorAbs);
             fenotipo.setMejor(mejorAbs);
             System.out.println(
-                gen +
-                    " | " +
-                    maxGeneraciones +
-                    " | " +
-                    mejorFitnessAbs +
-                    " | nodos=" +
-                    mejorAbs.nodos
+                "GE " + gen + " | " + maxGeneraciones + " | " + mejorFitnessAbs +
+                    " | nodos=" + mejorAbs.nodos
             );
         }
     }
 
     private void iniciarPoblacion() {
         poblacion = new Cromosoma[tamPoblacion];
-        NodoAst[] arboles = GeneradorArbol.rampedHalfAndHalf(
-            tamPoblacion,
-            profMaxInicial,
-            rnd
-        );
-        for (int i = 0; i < tamPoblacion; i++) poblacion[i] = new Cromosoma(
-            arboles[i]
-        );
+        for (int i = 0; i < tamPoblacion; i++) {
+            int[] codones = new int[longCromosoma];
+            for (int j = 0; j < longCromosoma; j++) codones[j] = rnd.nextInt(256);
+            poblacion[i] = new CromosomaGE(codones, profMaxDecoder);
+        }
     }
 
     private void evaluarPoblacion() {
