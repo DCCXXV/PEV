@@ -4,9 +4,6 @@ import G12P3.ag.Cromosoma;
 import G12P3.ag.cruce.Cruce;
 import G12P3.ge.CromosomaGE;
 
-// cruce aritmetico (P1, adaptado a enteros): h[i] = (p1[i] + p2[i]) / 2
-// para cada codon. al ser determinista produce dos hijos identicos pero
-// genera codones "intermedios" que no estaban en ninguno de los dos padres
 public class CruceAritmeticoGE implements Cruce {
 
     @Override

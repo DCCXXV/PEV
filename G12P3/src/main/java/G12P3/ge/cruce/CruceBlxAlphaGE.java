@@ -5,9 +5,6 @@ import G12P3.ag.cruce.Cruce;
 import G12P3.ge.CromosomaGE;
 import java.util.Random;
 
-// cruce BLX-alpha (P1, adaptado a enteros 0..255): para cada codon
-// h[i] se muestrea uniformemente en [Cmin - alpha*I, Cmax + alpha*I]
-// con I = Cmax - Cmin, truncando al rango valido del codon
 public class CruceBlxAlphaGE implements Cruce {
 
     private static final double ALPHA = 0.3;

@@ -5,9 +5,6 @@ import G12P3.ag.mutacion.Mutacion;
 import G12P3.ge.CromosomaGE;
 import java.util.Random;
 
-// mutacion por insercion (P2): se elige un codon, se quita y se inserta
-// en otra posicion desplazando el resto. desplazar codones cambia las
-// reglas que se aplican en cada paso del decoder, alterando el fenotipo
 public class MutacionInsercionGE implements Mutacion {
 
     private final Random rnd;

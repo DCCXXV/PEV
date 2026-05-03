@@ -5,9 +5,6 @@ import G12P3.ag.mutacion.Mutacion;
 import G12P3.ge.CromosomaGE;
 import java.util.Random;
 
-// mutacion gaussiana (P1, adaptada): a cada codon se le suma ruido gaussiano
-// con probabilidad PROB_GEN. permite "saltos pequenos" en el espacio de
-// busqueda, util cuando el codon esta cerca de un cambio de regla (c % r)
 public class MutacionGaussianaGE implements Mutacion {
 
     private static final double PROB_GEN = 0.05;

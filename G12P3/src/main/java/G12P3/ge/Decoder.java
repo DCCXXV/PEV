@@ -8,13 +8,6 @@ import G12P3.evaluacion.Operador;
 import G12P3.evaluacion.TipoAccion;
 import G12P3.evaluacion.TipoSensor;
 
-// mapeo genotipo -> fenotipo: convierte un cromosoma de codones (enteros 0..255)
-// en un AST aplicando las reglas de produccion BNF mediante regla = c % r.
-//
-// la gramatica esta deliberadamente alineada con el generador de PG
-// (GeneradorArbol#crearGrow) para que los individuos GE compitan en igualdad
-// de condiciones: cada <expr> es directamente accion, condicional o bloque,
-// sin envolver acciones sueltas en NodoBloque vacios.
 public class Decoder {
 
     private static final int[] UMBRALES = { 10, 50, 100 };
@@ -42,8 +35,7 @@ public class Decoder {
             return fallback;
         }
         Decoder d = new Decoder(codones, profMax);
-        // arrancamos siempre por un bloque para garantizar varios statements
-        // a nivel raiz y reducir probabilidad de programas triviales (1 accion)
+
         return d.bloque(0);
     }
 
@@ -102,10 +94,6 @@ public class Decoder {
         return cond;
     }
 
-    // <accion> ::= AVANZAR | AVANZAR | AVANZAR | GIRAR_IZQ | GIRAR_DER
-    // sesgo 60% a AVANZAR (vs 50% en PG) porque la pereza penaliza fuerte y
-    // la estructura mas equilibrada del decoder produce arboles algo menos
-    // "moviles" que ramped half-and-half si no se compensa
     private NodoAst accion(int prof) {
         int c = siguiente() % 5;
         TipoAccion a;

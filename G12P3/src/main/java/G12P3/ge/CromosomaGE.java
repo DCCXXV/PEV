@@ -1,9 +1,6 @@
 package G12P3.ge;
 
 import G12P3.ag.Cromosoma;
-
-// cromosoma para gramaticas evolutivas. el genotipo es un array de codones
-// (enteros 0..255) y el fenotipo es el AST que se obtiene al decodificarlos
 public class CromosomaGE extends Cromosoma {
 
     public int[] codones;

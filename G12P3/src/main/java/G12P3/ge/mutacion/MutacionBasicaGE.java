@@ -5,8 +5,6 @@ import G12P3.ag.mutacion.Mutacion;
 import G12P3.ge.CromosomaGE;
 import java.util.Random;
 
-// mutacion clasica de cadena de enteros: por cada codon, con probabilidad
-// fija de gen, se sustituye por un valor 0..255 aleatorio
 public class MutacionBasicaGE implements Mutacion {
 
     // ~1/L para una cadena de 50 codones: una mutacion esperada por individuo

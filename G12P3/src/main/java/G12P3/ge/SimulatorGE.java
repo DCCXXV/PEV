@@ -12,9 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-// simulador especifico para gramaticas evolutivas: la unica diferencia con
-// el simulador de PG es la inicializacion (cromosomas lineales decodificados
-// a AST) y el cruce/mutacion sobre los codones, no sobre el arbol
 public class SimulatorGE {
 
     private final int maxGeneraciones;

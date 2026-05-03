@@ -8,9 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-// mutacion scramble (P2): se eligen dos puntos i,j y se barajan los
-// codones del segmento [i,j]. mas exploratorio que la inversion porque
-// aplica una permutacion aleatoria en lugar de invertir el orden
 public class MutacionScrambleGE implements Mutacion {
 
     private final Random rnd;
