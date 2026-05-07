@@ -158,7 +158,7 @@ public class ConfiguracionGE extends JPanel {
         add(new JLabel("Profundidad máxima decoder:"), gbc);
         gbc.gridx = 1;
         this.profundidadDecoder = new JSpinner(
-            new SpinnerNumberModel(6, 2, 10, 1)
+            new SpinnerNumberModel(6, 2, 100000, 1)
         );
         add(profundidadDecoder, gbc);
         y++;
@@ -372,6 +372,8 @@ public class ConfiguracionGE extends JPanel {
         visualizarMapa.setVisible(false);
         rellenarComboMapas(datos.numMapas);
         tablero.setIndiceMapa(0);
+        tablero.setMejor(null);
+        tablero.setTiempoMedioMs(-1);
         grafica.setGeneraciones(datos.generaciones);
         fenotipo.limpiar();
 
@@ -382,18 +384,23 @@ public class ConfiguracionGE extends JPanel {
                     Seleccion sel = crearSeleccion(rnd, datos.seleccion);
                     Cruce cru = crearCruce(rnd, datos.cruce);
                     Mutacion mut = crearMutacion(rnd, datos.mutacion);
+                    long inicio = System.nanoTime();
                     new SimulatorGE(
                         datos.generaciones, datos.poblacion, datos.probCruce,
                         datos.probMutacion, datos.elitismo, datos.longCromosoma,
                         datos.profDecoder, datos.coefBloat, datos.semilla, datos.semilla,
                         datos.numMapas, sel, cru, mut, tablero, grafica, fenotipo
                     );
+                    long tiempoMs = (System.nanoTime() - inicio) / 1_000_000;
+                    tablero.setTiempoMedioMs(tiempoMs);
+                    System.out.printf("Tiempo: %d ms (%.2f s)%n", tiempoMs, tiempoMs / 1000.0);
                 } else {
                     double[] sumaMejorGen = new double[datos.generaciones];
                     double[] sumaMejorAbs = new double[datos.generaciones];
                     double[] sumaMedia = new double[datos.generaciones];
                     AtomicInteger simsCompletadas = new AtomicInteger(0);
                     AtomicReference<Cromosoma> mejorGlobal = new AtomicReference<>(null);
+                    java.util.concurrent.atomic.AtomicLong sumaTiempos = new java.util.concurrent.atomic.AtomicLong(0);
 
                     int numHilos = Math.min(datos.numSimulaciones, Runtime.getRuntime().availableProcessors());
                     ExecutorService pool = Executors.newFixedThreadPool(numHilos);
@@ -408,12 +415,15 @@ public class ConfiguracionGE extends JPanel {
                             Cruce cru = crearCruce(rnd, datos.cruce);
                             Mutacion mut = crearMutacion(rnd, datos.mutacion);
                             System.out.println("GE Simulación " + (simIdx + 1) + "/" + datos.numSimulaciones);
+                            long inicio = System.nanoTime();
                             SimulatorGE s = new SimulatorGE(
                                 datos.generaciones, datos.poblacion, datos.probCruce,
                                 datos.probMutacion, datos.elitismo, datos.longCromosoma,
                                 datos.profDecoder, datos.coefBloat, semillaSim, datos.semilla,
                                 datos.numMapas, sel, cru, mut, null, null, null
                             );
+                            long tiempoMs = (System.nanoTime() - inicio) / 1_000_000;
+                            sumaTiempos.addAndGet(tiempoMs);
                             synchronized (sumaMejorGen) {
                                 double[] mg = s.getDatosMejorGen();
                                 double[] ma = s.getDatosMejorAbs();
@@ -449,9 +459,13 @@ public class ConfiguracionGE extends JPanel {
                         Thread.currentThread().interrupt();
                     }
 
+                    long tiempoMedioMs = sumaTiempos.get() / datos.numSimulaciones;
+                    System.out.printf("Tiempo medio por simulación: %d ms (%.2f s)%n", tiempoMedioMs, tiempoMedioMs / 1000.0);
+
                     Cromosoma mejor = mejorGlobal.get();
                     if (mejor != null) {
                         tablero.setMejor(mejor);
+                        tablero.setTiempoMedioMs(tiempoMedioMs);
                         fenotipo.setMejor(mejor);
                     }
                 }

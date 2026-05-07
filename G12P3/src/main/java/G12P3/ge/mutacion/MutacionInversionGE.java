@@ -34,6 +34,5 @@ public class MutacionInversionGE implements Mutacion {
             i++;
             j--;
         }
-        c.redecodificar();
     }
 }

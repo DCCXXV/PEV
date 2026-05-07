@@ -34,6 +34,5 @@ public class MutacionInsercionGE implements Mutacion {
                 g[destino] = elem;
             }
         }
-        c.redecodificar();
     }
 }

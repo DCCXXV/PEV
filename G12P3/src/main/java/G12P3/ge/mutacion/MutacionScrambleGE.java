@@ -34,6 +34,5 @@ public class MutacionScrambleGE implements Mutacion {
         Collections.shuffle(segmento, rnd);
         for (int k = i; k <= j; k++) g[k] = segmento.get(k - i);
 
-        c.redecodificar();
     }
 }

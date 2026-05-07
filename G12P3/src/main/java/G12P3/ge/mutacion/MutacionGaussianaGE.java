@@ -19,16 +19,13 @@ public class MutacionGaussianaGE implements Mutacion {
     @Override
     public void mutar(Cromosoma cromosoma) {
         CromosomaGE c = (CromosomaGE) cromosoma;
-        boolean cambiado = false;
         for (int i = 0; i < c.codones.length; i++) {
             if (rnd.nextDouble() < PROB_GEN) {
                 int nuevo = (int) Math.round(c.codones[i] + rnd.nextGaussian() * SIGMA);
                 if (nuevo < 0) nuevo = 0;
                 if (nuevo > 255) nuevo = 255;
                 c.codones[i] = nuevo;
-                cambiado = true;
             }
         }
-        if (cambiado) c.redecodificar();
     }
 }

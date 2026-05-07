@@ -30,7 +30,5 @@ public class CruceUniformeGE implements Cruce {
                 g2[i] = t;
             }
         }
-        p1.redecodificar();
-        p2.redecodificar();
     }
 }

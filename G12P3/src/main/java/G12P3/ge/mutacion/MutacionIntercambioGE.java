@@ -25,6 +25,5 @@ public class MutacionIntercambioGE implements Mutacion {
         int t = g[i];
         g[i] = g[j];
         g[j] = t;
-        c.redecodificar();
     }
 }

@@ -19,7 +19,5 @@ public class CruceAritmeticoGE implements Cruce {
             g1[i] = media;
             g2[i] = media;
         }
-        p1.redecodificar();
-        p2.redecodificar();
     }
 }

@@ -29,7 +29,5 @@ public class CruceMonopuntoGE implements Cruce {
             g1[i] = g2[i];
             g2[i] = t;
         }
-        p1.redecodificar();
-        p2.redecodificar();
     }
 }

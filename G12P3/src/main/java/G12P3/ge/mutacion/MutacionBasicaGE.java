@@ -18,13 +18,10 @@ public class MutacionBasicaGE implements Mutacion {
     @Override
     public void mutar(Cromosoma cromosoma) {
         CromosomaGE c = (CromosomaGE) cromosoma;
-        boolean cambiado = false;
         for (int i = 0; i < c.codones.length; i++) {
             if (rnd.nextDouble() < PROB_GEN) {
                 c.codones[i] = rnd.nextInt(256);
-                cambiado = true;
             }
         }
-        if (cambiado) c.redecodificar();
     }
 }

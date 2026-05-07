@@ -32,7 +32,7 @@ public class MutacionSubarbol implements Mutacion {
 
         Hueco hueco = huecos.get(rnd.nextInt(huecos.size()));
         NodoAst nuevoSubarbol = GeneradorArbol.crearGrow(
-            hueco.prof(),
+            0,
             profMax,
             rnd
         );

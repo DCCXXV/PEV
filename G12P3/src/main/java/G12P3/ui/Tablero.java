@@ -11,6 +11,7 @@ public class Tablero extends JPanel {
     private int[][] mapaBase;
     private Cromosoma mejor;
     private int indiceMapa = 0;
+    private long tiempoMedioMs = -1;
 
     private Graphics2D g2;
     private int offsetX;
@@ -32,6 +33,11 @@ public class Tablero extends JPanel {
 
     public void setIndiceMapa(int i) {
         this.indiceMapa = i;
+        SwingUtilities.invokeLater(this::repaint);
+    }
+
+    public void setTiempoMedioMs(long ms) {
+        this.tiempoMedioMs = ms;
         SwingUtilities.invokeLater(this::repaint);
     }
 
@@ -228,5 +234,15 @@ public class Tablero extends JPanel {
             textX,
             textY
         );
+        if (tiempoMedioMs >= 0) {
+            textY += 16;
+            g2.setFont(new Font("Arial", Font.BOLD, 12));
+            g2.setColor(new Color(0, 80, 160));
+            g2.drawString(
+                String.format("Tiempo medio por simulación: %d ms (%.2f s)", tiempoMedioMs, tiempoMedioMs / 1000.0),
+                textX,
+                textY
+            );
+        }
     }
 }

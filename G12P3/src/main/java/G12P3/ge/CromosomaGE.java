@@ -13,9 +13,14 @@ public class CromosomaGE extends Cromosoma {
         this.arbol = Decoder.decodificar(codones, profMaxDecoder);
     }
 
-    // se llama tras cada cruce/mutacion para reflejar el cambio en el fenotipo
     public void redecodificar() {
         this.arbol = Decoder.decodificar(codones, profMaxDecoder);
+    }
+
+    @Override
+    public double evaluar(long[] semillas, double coefBloat) {
+        redecodificar();
+        return super.evaluar(semillas, coefBloat);
     }
 
     @Override

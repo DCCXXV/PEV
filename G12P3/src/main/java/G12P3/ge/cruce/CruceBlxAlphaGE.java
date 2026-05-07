@@ -32,8 +32,6 @@ public class CruceBlxAlphaGE implements Cruce {
             g1[i] = clipCodon((int) Math.round(inf + rnd.nextDouble() * (sup - inf)));
             g2[i] = clipCodon((int) Math.round(inf + rnd.nextDouble() * (sup - inf)));
         }
-        p1.redecodificar();
-        p2.redecodificar();
     }
 
     private int clipCodon(int v) {
