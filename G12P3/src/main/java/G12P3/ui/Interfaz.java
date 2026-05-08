@@ -11,28 +11,41 @@ public class Interfaz extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // tablero, grafica y panel de fenotipo se comparten entre los dos modos
         Tablero tablero = new Tablero();
-        Grafica grafica = new Grafica();
         PanelFenotipo fenotipo = new PanelFenotipo();
 
-        Configuracion configuracionPG = new Configuracion(tablero, grafica, fenotipo);
-        ConfiguracionGE configuracionGE = new ConfiguracionGE(tablero, grafica, fenotipo);
+        Grafica graficaPG = new Grafica();
+        Grafica graficaGE = new Grafica();
+
+        Configuracion configuracionPG = new Configuracion(tablero, graficaPG, fenotipo);
+        ConfiguracionGE configuracionGE = new ConfiguracionGE(tablero, graficaGE, fenotipo);
+        EjemploPG ejemploPG = new EjemploPG(fenotipo);
+        EjemploGE ejemploGE = new EjemploGE(fenotipo);
+
+        JPanel graficaContainer = new JPanel(new CardLayout());
+        graficaContainer.add(graficaPG, "PG");
+        graficaContainer.add(graficaGE, "GE");
 
         // tabs para alternar entre PG y GE: cada uno con sus propios cruces y mutaciones
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Programación Genética", configuracionPG);
-        tabs.addTab("Gramáticas Evolutivas", configuracionGE);
+        tabs.addTab("PG", configuracionPG);
+        tabs.addTab("GE", configuracionGE);
+        tabs.addTab("Ejemplo PG", ejemploPG);
+        tabs.addTab("Ejemplo GE", ejemploGE);
         tabs.addChangeListener(e -> {
+            CardLayout cl = (CardLayout) graficaContainer.getLayout();
             if (tabs.getSelectedComponent() == configuracionGE) {
+                cl.show(graficaContainer, "GE");
                 configuracionGE.inicializarVista();
+            } else if (tabs.getSelectedComponent() == configuracionPG) {
+                cl.show(graficaContainer, "PG");
             }
         });
 
         JPanel topPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         topPanel.add(tabs);
         topPanel.add(tablero);
-        topPanel.add(grafica);
+        topPanel.add(graficaContainer);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(topPanel, BorderLayout.CENTER);

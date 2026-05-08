@@ -36,7 +36,9 @@ public class Decoder {
         }
         Decoder d = new Decoder(codones, profMax);
 
-        return d.bloque(0);
+        // <prog> ::= <bloque> | <condicional>   (2 alternativas)
+        int c = d.siguiente();
+        return (c % 2 == 0) ? d.bloque(0) : d.condicional(0);
     }
 
     private int siguiente() {
@@ -66,7 +68,7 @@ public class Decoder {
 
     // <bloque> ::= <expr> <expr> | <expr> <expr> <expr>   (2 alternativas)
     private NodoAst bloque(int prof) {
-        if (prof >= profMax) return accion(prof);
+        if (prof >= profMax || wrapsAgotados()) return accion(prof);
 
         int c = siguiente();
         int numHijos = (c % 2 == 0) ? 2 : 3;
@@ -95,10 +97,10 @@ public class Decoder {
     }
 
     private NodoAst accion(int prof) {
-        int c = siguiente() % 5;
+        int c = siguiente() % 4;
         TipoAccion a;
-        if (c <= 2) a = TipoAccion.AVANZAR;
-        else if (c == 3) a = TipoAccion.GIRAR_IZQ;
+        if (c <= 1) a = TipoAccion.AVANZAR;
+        else if (c == 2) a = TipoAccion.GIRAR_IZQ;
         else a = TipoAccion.GIRAR_DER;
 
         NodoAccion na = new NodoAccion(a);

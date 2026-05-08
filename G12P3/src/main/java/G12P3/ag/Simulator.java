@@ -50,7 +50,7 @@ public class Simulator {
         double elitismo,
         int profMaxInicial,
         double coefBloat,
-        long semilla,
+        Random rnd,
         long semillaMapa,
         int numMapas,
         Seleccion seleccion,
@@ -67,7 +67,7 @@ public class Simulator {
         this.elitismo = elitismo;
         this.profMaxInicial = profMaxInicial;
         this.coefBloat = coefBloat;
-        this.rnd = new Random(semilla);
+        this.rnd = rnd;
         this.semillasMapas = new long[numMapas];
         for (int i = 0; i < numMapas; i++) this.semillasMapas[i] = semillaMapa + i;
         this.seleccion = seleccion;

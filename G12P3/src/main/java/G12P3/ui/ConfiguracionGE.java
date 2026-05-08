@@ -124,11 +124,12 @@ public class ConfiguracionGE extends JPanel {
         y++;
 
         gbc.gridx = 0;
+
         gbc.gridy = y;
         add(new JLabel("Porcentaje de cruces (%):"), gbc);
         gbc.gridx = 1;
         this.porcentajeCruces = new JSpinner(
-            new SpinnerNumberModel(85, 0, 100, 1)
+            new SpinnerNumberModel(90, 0, 100, 1)
         );
         add(porcentajeCruces, gbc);
         y++;
@@ -138,7 +139,7 @@ public class ConfiguracionGE extends JPanel {
         add(new JLabel("Porcentaje de mutaciones (%):"), gbc);
         gbc.gridx = 1;
         this.porcentajeMutaciones = new JSpinner(
-            new SpinnerNumberModel(25, 0, 100, 1)
+            new SpinnerNumberModel(20, 0, 100, 1)
         );
         add(porcentajeMutaciones, gbc);
         y++;
@@ -158,7 +159,7 @@ public class ConfiguracionGE extends JPanel {
         add(new JLabel("Profundidad máxima decoder:"), gbc);
         gbc.gridx = 1;
         this.profundidadDecoder = new JSpinner(
-            new SpinnerNumberModel(6, 2, 100000, 1)
+            new SpinnerNumberModel(1000, 2, 100000, 1)
         );
         add(profundidadDecoder, gbc);
         y++;
@@ -177,7 +178,7 @@ public class ConfiguracionGE extends JPanel {
         gbc.gridy = y;
         add(new JLabel("Elitismo (%):"), gbc);
         gbc.gridx = 1;
-        this.elitismo = new JSpinner(new SpinnerNumberModel(3, 0, 100, 1));
+        this.elitismo = new JSpinner(new SpinnerNumberModel(5, 0, 100, 1));
         add(elitismo, gbc);
         y++;
 
@@ -380,7 +381,7 @@ public class ConfiguracionGE extends JPanel {
         this.hilo = new Thread(() -> {
             try {
                 if (datos.numSimulaciones == 1) {
-                    Random rnd = new Random(datos.semilla);
+                    Random rnd = new Random();
                     Seleccion sel = crearSeleccion(rnd, datos.seleccion);
                     Cruce cru = crearCruce(rnd, datos.cruce);
                     Mutacion mut = crearMutacion(rnd, datos.mutacion);
@@ -388,7 +389,7 @@ public class ConfiguracionGE extends JPanel {
                     new SimulatorGE(
                         datos.generaciones, datos.poblacion, datos.probCruce,
                         datos.probMutacion, datos.elitismo, datos.longCromosoma,
-                        datos.profDecoder, datos.coefBloat, datos.semilla, datos.semilla,
+                        datos.profDecoder, datos.coefBloat, rnd, datos.semilla,
                         datos.numMapas, sel, cru, mut, tablero, grafica, fenotipo
                     );
                     long tiempoMs = (System.nanoTime() - inicio) / 1_000_000;
@@ -409,8 +410,7 @@ public class ConfiguracionGE extends JPanel {
                     for (int sim = 0; sim < datos.numSimulaciones; sim++) {
                         final int simIdx = sim;
                         futures.add(pool.submit(() -> {
-                            long semillaSim = datos.semilla + simIdx;
-                            Random rnd = new Random(semillaSim);
+                            Random rnd = new Random();
                             Seleccion sel = crearSeleccion(rnd, datos.seleccion);
                             Cruce cru = crearCruce(rnd, datos.cruce);
                             Mutacion mut = crearMutacion(rnd, datos.mutacion);
@@ -419,7 +419,7 @@ public class ConfiguracionGE extends JPanel {
                             SimulatorGE s = new SimulatorGE(
                                 datos.generaciones, datos.poblacion, datos.probCruce,
                                 datos.probMutacion, datos.elitismo, datos.longCromosoma,
-                                datos.profDecoder, datos.coefBloat, semillaSim, datos.semilla,
+                                datos.profDecoder, datos.coefBloat, rnd, datos.semilla,
                                 datos.numMapas, sel, cru, mut, null, null, null
                             );
                             long tiempoMs = (System.nanoTime() - inicio) / 1_000_000;
@@ -501,6 +501,8 @@ public class ConfiguracionGE extends JPanel {
     }
 
     public void inicializarVista() {
-        generarTablero();
+        long s = ((Number) semilla.getValue()).longValue();
+        int[][] mapa = MapaLunar.generar(s);
+        tablero.setMapaBase(mapa);
     }
 }

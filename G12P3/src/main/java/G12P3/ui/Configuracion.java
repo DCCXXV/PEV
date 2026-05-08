@@ -140,7 +140,7 @@ public class Configuracion extends JPanel {
         add(new JLabel("Profundidad máxima inicial:"), gbc);
         gbc.gridx = 1;
         this.profundidadMaxima = new JSpinner(
-            new SpinnerNumberModel(6, 2, 1000, 1)
+            new SpinnerNumberModel(10, 2, 1000, 1)
         );
         add(profundidadMaxima, gbc);
         y++;
@@ -159,7 +159,7 @@ public class Configuracion extends JPanel {
         gbc.gridy = y;
         add(new JLabel("Elitismo (%):"), gbc);
         gbc.gridx = 1;
-        this.elitismo = new JSpinner(new SpinnerNumberModel(3, 0, 100, 1));
+        this.elitismo = new JSpinner(new SpinnerNumberModel(5, 0, 100, 1));
         add(elitismo, gbc);
         y++;
 
@@ -335,7 +335,7 @@ public class Configuracion extends JPanel {
         this.hilo = new Thread(() -> {
             try {
                 if (datos.numSimulaciones == 1) {
-                    Random rnd = new Random(datos.semilla);
+                    Random rnd = new Random();
                     Seleccion sel = crearSeleccion(rnd, datos.seleccion);
                     Cruce cru = crearCruce(rnd, datos.cruce);
                     Mutacion mut = crearMutacion(rnd, datos.profundidadMax, datos.mutacion);
@@ -343,7 +343,7 @@ public class Configuracion extends JPanel {
                     new Simulator(
                         datos.generaciones, datos.poblacion, datos.probCruce,
                         datos.probMutacion, datos.elitismo, datos.profundidadMax,
-                        datos.coefBloat, datos.semilla, datos.semilla, datos.numMapas,
+                        datos.coefBloat, rnd, datos.semilla, datos.numMapas,
                         sel, cru, mut, tablero, grafica, fenotipo
                     );
                     long tiempoMs = (System.nanoTime() - inicio) / 1_000_000;
@@ -364,8 +364,7 @@ public class Configuracion extends JPanel {
                     for (int sim = 0; sim < datos.numSimulaciones; sim++) {
                         final int simIdx = sim;
                         futures.add(pool.submit(() -> {
-                            long semillaSim = datos.semilla + simIdx;
-                            Random rnd = new Random(semillaSim);
+                            Random rnd = new Random();
                             Seleccion sel = crearSeleccion(rnd, datos.seleccion);
                             Cruce cru = crearCruce(rnd, datos.cruce);
                             Mutacion mut = crearMutacion(rnd, datos.profundidadMax, datos.mutacion);
@@ -374,7 +373,7 @@ public class Configuracion extends JPanel {
                             Simulator s = new Simulator(
                                 datos.generaciones, datos.poblacion, datos.probCruce,
                                 datos.probMutacion, datos.elitismo, datos.profundidadMax,
-                                datos.coefBloat, semillaSim, datos.semilla, datos.numMapas,
+                                datos.coefBloat, rnd, datos.semilla, datos.numMapas,
                                 sel, cru, mut, null, null, null
                             );
                             long tiempoMs = (System.nanoTime() - inicio) / 1_000_000;
